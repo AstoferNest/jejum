@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jejum Pro - Rastreador & Estágios</title>
+    <!-- Tailwind CSS para design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para ícones elegantes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- jsPDF para exportação de relatórios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+        }
+        /* Custom scrollbar para visual premium */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        /* Efeito de vidro (Glassmorphism) */
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Animação suave para troca de estados */
+        .transition-all-300 {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- CABEÇALHO -->
+    <header class="glass-card sticky top-0 z-50 px-4 py-3 border-b border-gray-800">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-hourglass-half text-white text-lg animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">JejumPro</h1>
+                    <p class="text-[10px] text-gray-400 tracking-wider uppercase">Seu Guia de Longevidade</p>
+                </div>
+            </div>
+            
+            <button onclick="togglePWAInstructions()" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-mobile-screen-button"></i> Instalar App
+            </button>
+        </div>
+    </header>
+
+    <!-- INSTRUÇÕES PWA MODAL -->
+    <div id="pwaModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl relative border border-indigo-500/20">
+            <button onclick="togglePWAInstructions()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-xl font-bold text-indigo-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info"></i> Instalar no Celular
+            </h3>
+            <p class="text-sm text-gray-300 mb-4 leading-relaxed">
+                Você pode salvar este aplicativo diretamente na tela inicial do seu celular como um App (PWA):
+            </p>
+            <div class="space-y-3 text-sm text-gray-300">
+                <div class="flex items-start gap-3 bg-gray-900/50 p-2.5 rounded-lg">
+                    <span class="bg-indigo-600 text-white font-bold text-xs px-2 py-0.5 rounded-full mt-0.5">iOS</span>
+                    <p>Abra no <b>Safari</b>, toque no botão de <b>Compartilhar <i class="fa-solid fa-share-nodes text-xs"></i></b> e selecione <b>"Adicionar à Tela de Início"</b>.</p>
+                </div>
+                <div class="flex items-start gap-3 bg-gray-900/50 p-2.5 rounded-lg">
+                    <span class="bg-purple-600 text-white font-bold text-xs px-2 py-0.5 rounded-full mt-0.5">Android</span>
+                    <p>Abra no <b>Chrome</b>, toque nos <b>três pontinhos <i class="fa-solid fa-ellipsis-vertical text-xs"></i></b> no topo e escolha <b>"Instalar aplicativo"</b>.</p>
+                </div>
+            </div>
+            <button onclick="togglePWAInstructions()" class="mt-5 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors">
+                Entendi!
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL (Centralizado/Mobile First) -->
+    <main class="flex-grow max-w-md w-full mx-auto p-4 space-y-6">
+
+        <!-- CARD DO CRONÔMETRO -->
+        <section class="glass-card rounded-3xl p-6 relative overflow-hidden shadow-2xl">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl"></div>
+
+            <div class="relative flex flex-col items-center">
+                <!-- Seletor de Meta de Jejum -->
+                <div class="w-full flex justify-between items-center mb-4">
+                    <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Meta Selecionada:</span>
+                    <select id="fastGoal" class="bg-gray-800 text-indigo-300 text-xs font-bold py-1.5 px-3 rounded-lg border border-gray-700 focus:outline-none focus:border-indigo-500" onchange="updateGoal()">
+                        <option value="12">12 Horas (Básico)</option>
+                        <option value="16" selected>16 Horas (Leve - 16:8)</option>
+                        <option value="18">18 Horas (Moderado - 18:6)</option>
+                        <option value="24">24 Horas (Guerreiro)</option>
+                        <option value="36">36 Horas (Autofagia Avançada)</option>
+                        <option value="48">48 Horas (Renovação)</option>
+                        <option value="72">72 Horas (Máximo Saúde)</option>
+                    </select>
+                </div>
+
+                <!-- Display Visual Circular (SVG) -->
+                <div class="relative w-56 h-56 flex items-center justify-center my-2">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <!-- Círculo de fundo -->
+                        <circle cx="112" cy="112" r="96" stroke="#1f2937" stroke-width="8" fill="transparent" />
+                        <!-- Círculo de progresso -->
+                        <circle id="progressCircle" cx="112" cy="112" r="96" stroke="url(#indigoGrad)" stroke-width="10" stroke-linecap="round" fill="transparent" stroke-dasharray="603" stroke-dashoffset="603" class="transition-all-300" />
+                        
+                        <defs>
+                            <linearGradient id="indigoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#6366f1" />
+                                <stop offset="100%" stop-color="#a855f7" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <!-- Textos Internos do Círculo -->
+                    <div class="absolute flex flex-col items-center justify-center text-center">
+                        <span id="timerStateLabel" class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1">ALIMENTADO</span>
+                        <div id="timerDisplay" class="text-3xl font-black tabular-nums tracking-tight">00:00:00</div>
+                        <span id="percentDisplay" class="text-xs text-gray-400 mt-1 font-semibold">Progresso: 0%</span>
+                    </div>
+                </div>
+
+                <!-- Status de Início e Término Previstos -->
+                <div class="w-full grid grid-cols-2 gap-3 mt-3 text-center border-t border-b border-gray-800/80 py-3">
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Início</p>
+                        <p id="startTimeDisplay" class="text-xs font-semibold text-gray-200">-</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Fim Previsto</p>
+                        <p id="endTimeDisplay" class="text-xs font-semibold text-gray-200">-</p>
+                    </div>
+                </div>
+
+                <!-- Botões de Controle -->
+                <div class="w-full grid grid-cols-2 gap-4 mt-6">
+                    <button id="btnStart" onclick="startFasting()" class="col-span-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-indigo-500/25 transition-all-300 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Iniciar Jejum
+                    </button>
+                    <button id="btnCancel" onclick="cancelFasting()" class="hidden bg-gray-800 hover:bg-red-900/30 text-gray-400 hover:text-red-300 font-semibold py-3 px-4 rounded-2xl border border-gray-700/80 hover:border-red-500/20 transition-all duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trash-can"></i> Cancelar
+                    </button>
+                    <button id="btnStop" onclick="stopFasting()" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-square"></i> Concluir
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO DO ESTÁGIO ATUAL (Dinâmico com base no TXT) -->
+        <section id="stageSection" class="glass-card rounded-3xl p-5 border-l-4 border-indigo-500 relative transition-all-300 shadow-xl">
+            <span class="absolute top-4 right-4 bg-indigo-500/10 text-indigo-300 text-[10px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wider" id="stageBadge">Aguardando</span>
+            <h3 class="text-lg font-bold text-gray-100 flex items-center gap-2">
+                <i class="fa-solid fa-circle-nodes text-indigo-400"></i> Estágio Fisiológico
+            </h3>
+            <p class="text-xs text-gray-400 mt-1 mb-4" id="stageInterval">Sem jejum em andamento</p>
+
+            <div id="stageContent" class="space-y-4">
+                <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                    <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-1"><i class="fa-solid fa-dna"></i> Estado Corporal</h4>
+                    <p id="stageBody" class="text-sm text-gray-300 leading-relaxed">Inicie um jejum para rastrear as mudanças metabólicas em tempo real e ver as fases que seu corpo passa.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-purple-300 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-face-smile"></i> Sentimentos Possíveis</h4>
+                        <ul id="stageFeelings" class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                            <li>Aguardando início...</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-pink-300 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-shield-halved"></i> Como Enfrentar</h4>
+                        <ul id="stageCoping" class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                            <li>Aguardando início...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO DE RECEITAS LOW-CARB -->
+        <section class="glass-card rounded-3xl p-5 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-100 flex items-center gap-2">
+                    <i class="fa-solid fa-utensils text-purple-400"></i> Nutrição & Quebra de Jejum
+                </h3>
+                <button onclick="downloadRecipesPDF()" class="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 px-3 py-1 rounded-lg transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf"></i> Baixar PDF
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Receitas ideais para manter a cetose e quebrar o jejum com o menor impacto de insulina possível.</p>
+
+            <div class="space-y-3" id="recipesList">
+                <!-- Receitas criadas dinamicamente via JS (perfeito para edição futura fácil) -->
+            </div>
+        </section>
+
+        <!-- HISTÓRICO DE JORNADAS -->
+        <section class="glass-card rounded-3xl p-5 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-100 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-pink-400"></i> Histórico de Jornadas
+                </h3>
+                <div class="flex gap-2">
+                    <button onclick="downloadHistoryPDF()" class="text-xs bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/20 px-3 py-1 rounded-lg transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </button>
+                    <button onclick="clearHistory()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 px-2 py-1 rounded-lg transition-all" title="Limpar Histórico">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="historyContainer" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- Inserido dinamicamente -->
+                <div class="text-center py-6 text-gray-500 text-xs">
+                    <i class="fa-solid fa-folder-open text-2xl mb-2 block"></i>
+                    Nenhuma jornada registrada ainda.
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="glass-card text-center py-4 mt-8 border-t border-gray-800 text-xs text-gray-500">
+        <p>© 2026 JejumPro - Armazenamento Local Privado no Aparelho</p>
+        <p class="mt-1 text-gray-600">Edite e adicione novas receitas facilmente no código fonte.</p>
+    </footer>
+
+    <!-- SISTEMA E LÓGICA DO APP (JavaScript) -->
+    <script>
+        // --- BASE DE DADOS DOS ESTÁGIOS (Do seu arquivo TXT carregado) ---
+        const fastingStages = [
+            {
+                min: 0, max: 4,
+                title: "Aumento do açúcar no sangue",
+                body: "O corpo está em um estado metabólico normal, digerindo alimentos e usando calorias recentes para energia. Os níveis de glicose no sangue e insulina estão elevados.",
+                feelings: ["Saciedade e sensação de plenitude", "Níveis normais de energia", "Clareza mental"],
+                coping: ["Mantenha atividades regulares", "Evite comer em excesso ou fazer lanches", "Mantenha-se hidratado com água ou chá de ervas"],
+                color: "indigo-500"
+            },
+            {
+                min: 4, max: 8,
+                title: "Queda do açúcar no sangue",
+                body: "Os níveis de glicose e insulina no sangue diminuem à medida que a digestão se completa. O corpo começa a utilizar o glicogênio armazenado para energia.",
+                feelings: ["Podem começar leves pontadas de fome", "Pequena queda nos níveis de energia", "Potenciais leves mudanças de humor"],
+                coping: ["Mantenha-se ocupado com atividades leves", "Beba água ou chá de ervas para se sentir saciado", "Pratique mindfulness ou meditação"],
+                color: "blue-500"
+            },
+            {
+                min: 8, max: 10,
+                title: "Açúcar no sangue normal",
+                body: "Os níveis de insulina caem ainda mais, levando a exaustão do glicogênio. O corpo começa a oxidar gordura e se adapta ao uso de energia armazenada.",
+                feelings: ["Sensações de fome aumentada", "Possível leve tontura ou vertigem", "Potencial irritabilidade"],
+                coping: ["Garanta uma hidratação adequada", "Considere a suplementação de eletrólitos (sem açúcar)", "Faça pequenas pausas para descansar"],
+                color: "cyan-500"
+            },
+            {
+                min: 10, max: 14,
+                title: "Início da queima de gordura",
+                body: "As reservas de glicogênio estão significativamente reduzidas, aumentando o metabolismo da gordura. A gliconeogênese mantém os níveis de glicose no sangue, marcando a mudança para a gordura como a principal fonte de energia.",
+                feelings: ["Fome perceptível", "Possível fadiga ou fraqueza", "Possível dor de cabeça", "Alguns podem experimentar maior clareza mental"],
+                coping: ["Considere tomar um multivitamínico", "Pratique exercícios leves como caminhada ou yoga", "Pratique técnicas de redução de estresse", "Se estiver trabalhando, faça pausas regulares para gerenciar os níveis de energia"],
+                color: "teal-500"
+            },
+            {
+                min: 14, max: 18,
+                title: "Entrando em cetose",
+                body: "A cetose leve começa com a queima acelerada de gordura e produção de cetonas. Os benefícios cognitivos podem se tornar mais perceptíveis.",
+                feelings: ["A fome pode começar a diminuir", "Os níveis de energia geralmente começam a aumentar", "Clareza mental e foco aprimorados", "Possível leve sensação de euforia"],
+                coping: ["Mantenha uma ingestão constante de água", "Evite atividades físicas intensas", "Use a clareza mental para tarefas criativas", "Se o sono for afetado, considere técnicas de relaxamento antes de dormir"],
+                color: "emerald-500"
+            },
+            {
+                min: 18, max: 24,
+                title: "Início da autofagia",
+                body: "A produção de cetonas aumenta e os processos de autofagia são ativados. O corpo depende principalmente de gorduras e cetonas para obter energia.",
+                feelings: ["Redução significativa da fome", "Aumento da alerta e energia", "Melhoria do humor e do estado mental", "Possível leve euforia"],
+                coping: ["Pratique atividades leves a moderadas para utilizar o aumento de energia", "Pratique mindfulness", "Mantenha-se socialmente envolvido", "Garanta um ambiente fresco e confortável para dormir"],
+                color: "green-500"
+            },
+            {
+                min: 24, max: 36,
+                title: "Cetose profunda",
+                body: "O corpo atinge a cetose profunda com pico de autofagia e aumento da secreção de hormônio do crescimento. Os processos de reparo celular estão altamente ativos.",
+                feelings: ["A fome geralmente diminui muito", "Altos níveis de energia e clareza mental", "Possível leve dor de cabeça ou tontura", "Aumento da sensibilidade ao frio"],
+                coping: ["Garanta descanso e sono adequados", "Considere exercícios leves", "Suplemente com eletrólitos, se necessário", "Mantenha-se aquecido e confortável"],
+                color: "amber-500"
+            },
+            {
+                min: 36, max: 48,
+                title: "Sensibilidade à insulina",
+                body: "A sensibilidade à insulina melhora e os marcadores de inflamação diminuem. O corpo está totalmente adaptado ao uso de gordura como combustível.",
+                feelings: ["Níveis de energia flutuantes", "Possível retorno das sensações de fome", "Sensibilidade à temperatura", "Possível leve náusea"],
+                coping: ["Monitore os sinais de desequilíbrio de eletrólitos", "Envolva-se em atividades físicas muito leves", "Pratique técnicas de relaxamento", "Considere o consumo de caldo de ossos ou suplementação de eletrólitos se sentir fraqueza"],
+                color: "orange-500"
+            },
+            {
+                min: 48, max: 72,
+                title: "Autofagia máxima",
+                body: "A autofagia atinge seu máximo, levando a um reinício significativo do sistema imunológico e possível produção de células-tronco. É essencial encerrar o jejum corretamente.",
+                feelings: ["A fome pode voltar fortemente", "Possível fadiga ou fraqueza", "Experiências sensoriais aumentadas", "Possível instabilidade emocional"],
+                coping: ["Monitore atentamente o estado físico e mental", "Prepare-se para encerrar o jejum com segurança", "Esforço físico mínimo", "Garanta um ambiente de apoio"],
+                color: "red-500"
+            }
+        ];
+
+        // --- BANCO DE RECEITAS INICIAIS (Fácil edição e inclusão) ---
+        // Você pode duplicar blocos aqui para adicionar infinitas novas receitas facilmente!
+        const recipes = [
+            {
+                id: 1,
+                title: "Ovos Mexidos na Manteiga com Abacate",
+                type: "Desjejum Confortável (Low Carb)",
+                ingredients: [
+                    "3 ovos caipiras inteiros",
+                    "1 colher de sopa de manteiga ghee",
+                    "1/2 abacate maduro fatiado",
+                    "Sal marinho, pimenta preta e sementes de gergelim a gosto"
+                ],
+                instructions: "Bata os ovos levemente. Em fogo baixo, derreta a manteiga e prepare os ovos mexendo lentamente para mantê-los macios. Sirva imediatamente ao lado do abacate fatiado temperado com sal e sementes de gergelim. Perfeito para uma quebra de jejum suave sem picos de insulina."
+            },
+            {
+                id: 2,
+                title: "Caldo de Ossos Rico em Nutrientes",
+                type: "Quebra de Jejum Seguro (Fases Longas)",
+                ingredients: [
+                    "1kg de ossos bovinos com tutano",
+                    "2 colheres de sopa de vinagre de maçã",
+                    "1 cebola grande picada",
+                    "3 dentes de alho esmagados",
+                    "Sal marinho e ervas finas a gosto"
+                ],
+                instructions: "Coloque os ossos em uma panela de pressão com água e vinagre de maçã (ajuda a extrair os minerais). Deixe repousar por 20 minutos. Adicione temperos, leve à pressão e cozinhe em fogo baixo por 2 horas (ou até 12 horas em panela convencional). Coe o caldo. Excelente repositor de eletrólitos para encerrar jejuns acima de 24 horas."
+            },
+            {
+                id: 3,
+                title: "Frango Grelhado com Azeite e Brócolis",
+                type: "Refeição Principal Low Carb",
+                ingredients: [
+                    "200g de peito de frango em bifes",
+                    "2 xícaras de brócolis cozido no vapor",
+                    "2 colheres de sopa de azeite de oliva extravirgem",
+                    "Alho picado, limão, sal e pimenta do reino"
+                ],
+                instructions: "Tempere o frango com alho, suco de limão, sal e pimenta. Grelhe o frango em uma frigideira quente. Sirva com os floretes de brócolis cozidos, regando ambos abundantemente com azeite de oliva no prato."
+            }
+        ];
+
+        // --- ESTADO GLOBAL DA APLICAÇÃO ---
+        let fastInterval = null;
+        let isFasting = false;
+        let startTime = null;
+        let selectedGoalHours = 16;
+        let history = [];
+
+        // --- INICIALIZAÇÃO DO APP ---
+        window.onload = function() {
+            loadFromLocalStorage();
+            renderRecipes();
+            renderHistory();
+            checkActiveFast();
+        };
+
+        // --- CARREGAR DADOS ---
+        function loadFromLocalStorage() {
+            const savedHistory = localStorage.getItem('jejum_history');
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+            }
+            const savedGoal = localStorage.getItem('jejum_goal');
+            if (savedGoal) {
+                selectedGoalHours = parseInt(savedGoal);
+                document.getElementById('fastGoal').value = selectedGoalHours;
+            }
+        }
+
+        // --- VERIFICAR SE EXISTE JEJUM SALVO EM ANDAMENTO ---
+        function checkActiveFast() {
+            const savedStart = localStorage.getItem('jejum_startTime');
+            if (savedStart) {
+                startTime = new Date(parseInt(savedStart));
+                isFasting = true;
+                updateGoal();
+                toggleControls(true);
+                runFastTimer();
+                fastInterval = setInterval(runFastTimer, 1000);
+            } else {
+                toggleControls(false);
+                resetDisplays();
+            }
+        }
+
+        // --- ATUALIZAR META SELECIONADA ---
+        function updateGoal() {
+            selectedGoalHours = parseInt(document.getElementById('fastGoal').value);
+            localStorage.setItem('jejum_goal', selectedGoalHours);
+            if (isFasting) {
+                updateScheduledTimes();
+            }
+        }
+
+        // --- ATUALIZAR INÍCIO E PREVISÃO NA INTERFACE ---
+        function updateScheduledTimes() {
+            if (!startTime) return;
+            
+            // Formatador de data local bonito
+            const options = { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' };
+            document.getElementById('startTimeDisplay').textContent = startTime.toLocaleString('pt-BR', options);
+            
+            const endTime = new Date(startTime.getTime() + (selectedGoalHours * 60 * 60 * 1000));
+            document.getElementById('endTimeDisplay').textContent = endTime.toLocaleString('pt-BR', options);
+        }
+
+        // --- INICIAR JORNADA ---
+        function startFasting() {
+            startTime = new Date();
+            localStorage.setItem('jejum_startTime', startTime.getTime());
+            isFasting = true;
+
+            toggleControls(true);
+            updateScheduledTimes();
+            runFastTimer();
+            fastInterval = setInterval(runFastTimer, 1000);
+        }
+
+        // --- EXECUTOR DO CRONÔMETRO ---
+        function runFastTimer() {
+            if (!startTime) return;
+            
+            const now = new Date();
+            const differenceMs = now - startTime;
+            
+            if (differenceMs < 0) return; // Segurança contra relógios dessincronizados
+
+            // Cálculos matemáticos de tempo
+            const seconds = Math.floor((differenceMs / 1000) % 60);
+            const minutes = Math.floor((differenceMs / (1000 * 60)) % 60);
+            const hours = Math.floor(differenceMs / (1000 * 60 * 60));
+
+            // Formatação do Display Principal
+            const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = formattedTime;
+            document.getElementById('timerStateLabel').textContent = "EM JEJUM";
+            document.getElementById('timerStateLabel').className = "text-[10px] text-amber-400 font-bold uppercase tracking-widest mb-1";
+
+            // Progresso Percentual e Círculo Progressivo
+            const totalGoalMs = selectedGoalHours * 60 * 60 * 1000;
+            const progressPercent = Math.min(Math.round((differenceMs / totalGoalMs) * 100), 100);
+            document.getElementById('percentDisplay').textContent = `Progresso: ${progressPercent}%`;
+
+            // SVG DashOffset cálculo (circunferência = 2 * PI * r = 2 * 3.1415 * 96 ≈ 603)
+            const circumference = 603;
+            const dashoffset = circumference - (progressPercent / 100) * circumference;
+            document.getElementById('progressCircle').style.strokeDashoffset = dashoffset;
+
+            // Altera cor do círculo de acordo com o progresso
+            if (progressPercent >= 100) {
+                document.getElementById('progressCircle').style.stroke = "#10b981"; // Verde ao bater a meta
+                document.getElementById('timerStateLabel').textContent = "META ALCANÇADA!";
+                document.getElementById('timerStateLabel').className = "text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1";
+            } else {
+                document.getElementById('progressCircle').style.stroke = "url(#indigoGrad)";
+            }
+
+            // ATUALIZA FASES FISIOLÓGICAS DINAMICAMENTE
+            const currentHoursDecimal = differenceMs / (1000 * 60 * 60);
+            updatePhysiologicalStage(currentHoursDecimal);
+        }
+
+        // --- ATUALIZAR ESTÁGIO DE ACORDO COM O TEMPO ---
+        function updatePhysiologicalStage(hours) {
+            // Acha qual o estágio correto na base de dados
+            let currentStage = fastingStages[0];
+            for (let i = 0; i < fastingStages.length; i++) {
+                if (hours >= fastingStages[i].min && hours < fastingStages[i].max) {
+                    currentStage = fastingStages[i];
+                    break;
+                }
+            }
+            // Se passar de 72 horas, mantém o último estágio ativo
+            if (hours >= 72) {
+                currentStage = fastingStages[fastingStages.length - 1];
+            }
+
+            // Renderiza na tela o estágio fisiológico
+            document.getElementById('stageBadge').textContent = `${currentStage.min}-${currentStage.max}H`;
+            document.getElementById('stageInterval').textContent = `Estágio Atual (${hours.toFixed(2)}h decorridas)`;
+            document.getElementById('stageSection').style.borderColor = `var(--tw-color-${currentStage.color})`;
+            
+            document.getElementById('stageContent').innerHTML = `
+                <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                    <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-1"><i class="fa-solid fa-dna"></i> ${currentStage.title}</h4>
+                    <p class="text-sm text-gray-300 leading-relaxed">${currentStage.body}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-purple-300 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-face-smile"></i> Sentimentos Possíveis</h4>
+                        <ul class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                            ${currentStage.feelings.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-pink-300 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-shield-halved"></i> Como Enfrentar</h4>
+                        <ul class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                            ${currentStage.coping.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- CONCLUIR JEJUM ---
+        function stopFasting() {
+            if (!confirm("Deseja realmente finalizar o seu jejum atual e salvá-lo?")) return;
+
+            const now = new Date();
+            const elapsedMs = now - startTime;
+            const elapsedHours = elapsedMs / (1000 * 60 * 60);
+
+            // Criar registro da jornada
+            const record = {
+                id: Date.now(),
+                start: startTime.getTime(),
+                end: now.getTime(),
+                goal: selectedGoalHours,
+                elapsed: elapsedHours
+            };
+
+            // Adiciona ao início do array
+            history.unshift(record);
+            localStorage.setItem('jejum_history', JSON.stringify(history));
+
+            // Resetar estados
+            isFasting = false;
+            clearInterval(fastInterval);
+            localStorage.removeItem('jejum_startTime');
+            
+            toggleControls(false);
+            resetDisplays();
+            renderHistory();
+        }
+
+        // --- CANCELAR JEJUM ---
+        function cancelFasting() {
+            if (!confirm("Deseja descartar o jejum atual? Os dados dessa sessão não serão salvos.")) return;
+
+            isFasting = false;
+            clearInterval(fastInterval);
+            localStorage.removeItem('jejum_startTime');
+            
+            toggleControls(false);
+            resetDisplays();
+        }
+
+        // --- ALTERNAR INTERFACE DOS BOTÕES ---
+        function toggleControls(fastingActive) {
+            if (fastingActive) {
+                document.getElementById('btnStart').classList.add('hidden');
+                document.getElementById('btnCancel').classList.remove('hidden');
+                document.getElementById('btnStop').classList.remove('hidden');
+                document.getElementById('fastGoal').disabled = true;
+            } else {
+                document.getElementById('btnStart').classList.remove('hidden');
+                document.getElementById('btnCancel').classList.add('hidden');
+                document.getElementById('btnStop').classList.add('hidden');
+                document.getElementById('fastGoal').disabled = false;
+            }
+        }
+
+        // --- RESETAR EXIBIÇÕES ---
+        function resetDisplays() {
+            document.getElementById('timerDisplay').textContent = "00:00:00";
+            document.getElementById('timerStateLabel').textContent = "ALIMENTADO";
+            document.getElementById('timerStateLabel').className = "text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1";
+            document.getElementById('percentDisplay').textContent = "Progresso: 0%";
+            document.getElementById('progressCircle').style.strokeDashoffset = 603;
+            document.getElementById('startTimeDisplay').textContent = "-";
+            document.getElementById('endTimeDisplay').textContent = "-";
+
+            // Reset do estágio
+            document.getElementById('stageBadge').textContent = "Aguardando";
+            document.getElementById('stageInterval').textContent = "Sem jejum em andamento";
+            document.getElementById('stageSection').style.borderColor = "rgb(99, 102, 241)";
+            document.getElementById('stageContent').innerHTML = `
+                <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                    <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-1"><i class="fa-solid fa-dna"></i> Estado Corporal</h4>
+                    <p class="text-sm text-gray-300 leading-relaxed">Inicie um jejum para rastrear as mudanças metabólicas em tempo real e ver as fases que seu corpo passa.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-purple-300 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-face-smile"></i> Sentimentos Possíveis</h4>
+                        <ul class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                            <li>Aguardando início...</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-pink-300 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-shield-halved"></i> Como Enfrentar</h4>
+                        <ul class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                            <li>Aguardando início...</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDERIZAR RECEITAS (Ideal para edição posterior) ---
+        function renderRecipes() {
+            const container = document.getElementById('recipesList');
+            container.innerHTML = recipes.map(recipe => `
+                <div class="bg-gray-900/50 hover:bg-gray-900/80 p-4 rounded-2xl border border-gray-800 transition-all duration-200">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-sm text-white">${recipe.title}</h4>
+                        <span class="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full uppercase">${recipe.type}</span>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5 class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Ingredientes:</h5>
+                        <ul class="text-xs text-gray-300 list-disc list-inside space-y-0.5 pl-1">
+                            ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="mt-3">
+                        <h5 class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Modo de Preparo:</h5>
+                        <p class="text-xs text-gray-400 leading-relaxed">${recipe.instructions}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- RENDERIZAR HISTÓRICO ---
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 text-xs">
+                        <i class="fa-solid fa-folder-open text-2xl mb-2 block"></i>
+                        Nenhuma jornada registrada ainda.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map(item => {
+                const startDate = new Date(item.start);
+                const endDate = new Date(item.end);
+                const timeOptions = { hour: '2-digit', minute: '2-digit' };
+                const dateOptions = { day: '2-digit', month: '2-digit' };
+                
+                const percentReached = Math.round((item.elapsed / item.goal) * 100);
+                const isCompleted = item.elapsed >= item.goal;
+
+                return `
+                    <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs ${isCompleted ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}">
+                                <i class="${isCompleted ? 'fa-solid fa-check-double' : 'fa-solid fa-circle-exclamation'}"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-200">${item.elapsed.toFixed(1)}h completadas</p>
+                                <p class="text-[10px] text-gray-400">Meta: ${item.goal}h (${percentReached}% da meta)</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-semibold text-gray-300">${startDate.toLocaleDateString('pt-BR', dateOptions)}</p>
+                            <p class="text-[9px] text-gray-500">${startDate.toLocaleTimeString('pt-BR', timeOptions)} - ${endDate.toLocaleTimeString('pt-BR', timeOptions)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- LIMPAR HISTÓRICO ---
+        function clearHistory() {
+            if (confirm("Deseja realmente apagar todo o seu histórico permanentemente?")) {
+                history = [];
+                localStorage.removeItem('jejum_history');
+                renderHistory();
+            }
+        }
+
+        // --- TOGGLE INSTRUÇÕES PWA ---
+        function togglePWAInstructions() {
+            const modal = document.getElementById('pwaModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // --- EXPORTAR HISTÓRICO EM PDF (Sem dependências externas além do jspdf do head) ---
+        function downloadHistoryPDF() {
+            if (history.length === 0) {
+                alert("Nenhum histórico para exportar!");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Título principal do PDF
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(99, 102, 241); // Indigo color
+            doc.text("Histórico de Jejum - JejumPro", 15, 20);
+
+            // Subtítulo
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} - Relatório Local de Longevidade`, 15, 27);
+
+            // Linha divisória
+            doc.setDrawColor(200, 200, 200);
+            doc.line(15, 32, 195, 32);
+
+            let yOffset = 42;
+
+            // Listar jejuns realizados
+            history.forEach((item, index) => {
+                if (yOffset > 270) {
+                    doc.addPage();
+                    yOffset = 20;
+                }
+
+                const startDate = new Date(item.start).toLocaleString('pt-BR');
+                const endDate = new Date(item.end).toLocaleString('pt-BR');
+                const isCompleted = item.elapsed >= item.goal ? "Sim" : "Não";
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(11);
+                doc.setTextColor(30, 41, 59); // Cinza escuro
+                doc.text(`Jejum #${history.length - index}`, 15, yOffset);
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                doc.setTextColor(80, 80, 80);
+                doc.text(`Início: ${startDate}  |  Fim: ${endDate}`, 15, yOffset + 5);
+                doc.text(`Meta Escolhida: ${item.goal} horas  |  Tempo Real: ${item.elapsed.toFixed(2)} horas`, 15, yOffset + 10);
+                doc.text(`Meta Alcançada: ${isCompleted}`, 15, yOffset + 15);
+
+                // Desenhar uma borda leve para separar os itens
+                doc.setDrawColor(240, 240, 240);
+                doc.line(15, yOffset + 18, 195, yOffset + 18);
+
+                yOffset += 25;
+            });
+
+            doc.save("historico-jejum-pro.pdf");
+        }
+
+        // --- EXPORTAR RECEITAS EM PDF ---
+        function downloadRecipesPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Título
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(168, 85, 247); // Purple color
+            doc.text("Receitas Low-carb & Quebra de Jejum", 15, 20);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text("Guia Oficial Nutricional do Usuário JejumPro", 15, 27);
+
+            doc.setDrawColor(200, 200, 200);
+            doc.line(15, 32, 195, 32);
+
+            let yOffset = 42;
+
+            recipes.forEach((recipe) => {
+                if (yOffset > 250) {
+                    doc.addPage();
+                    yOffset = 20;
+                }
+
+                // Título da Receita
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(13);
+                doc.setTextColor(30, 41, 59);
+                doc.text(recipe.title, 15, yOffset);
+
+                // Categoria
+                doc.setFont("helvetica", "italic");
+                doc.setFontSize(9);
+                doc.setTextColor(168, 85, 247);
+                doc.text(`Categoria: ${recipe.type}`, 15, yOffset + 5);
+
+                // Ingredientes
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9);
+                doc.setTextColor(80, 80, 80);
+                doc.text("Ingredientes:", 15, yOffset + 11);
+
+                doc.setFont("helvetica", "normal");
+                let ingOffset = yOffset + 16;
+                recipe.ingredients.forEach(ing => {
+                    doc.text(`- ${ing}`, 18, ingOffset);
+                    ingOffset += 5;
+                });
+
+                // Preparo
+                doc.setFont("helvetica", "bold");
+                doc.text("Modo de Preparo:", 15, ingOffset + 2);
+                
+                doc.setFont("helvetica", "normal");
+                const splitInstructions = doc.splitTextToSize(recipe.instructions, 175);
+                doc.text(splitInstructions, 15, ingOffset + 7);
+
+                yOffset = ingOffset + 12 + (splitInstructions.length * 4);
+
+                // Divisória
+                doc.setDrawColor(240, 240, 240);
+                doc.line(15, yOffset, 195, yOffset);
+                yOffset += 10;
+            });
+
+            doc.save("receitas-jejum-pro.pdf");
+        }
+    </script>
+</body>
+</html>
