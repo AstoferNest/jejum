@@ -475,6 +475,7 @@
 
         // --- CONFIGURAÇÃO PWA DINÂMICA ---
         function setupPWA() {
+            // Código antigo do manifesto dinâmico mantido...
             const manifestObj = {
                 name: "JejumPro - Seu Guia de Longevidade",
                 short_name: "JejumPro",
@@ -492,6 +493,13 @@
             const blob = new Blob([stringManifest], { type: 'application/json' });
             const manifestURL = URL.createObjectURL(blob);
             document.getElementById('manifest-link').setAttribute('href', manifestURL);
+        
+            // --- ADICIONE ESTE BLOCO PARA REGISTRAR O SW ---
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
+                .catch(err => console.error('Falha ao registrar o Service Worker:', err));
+            }
         }
 
         // --- SISTEMA DE GESTÃO DE PUSH NOTIFICATIONS ---
@@ -506,6 +514,42 @@
             }
         }
 
+
+        // Função para despachar o agendamento de notificações para o Service Worker
+        function scheduleBackgroundStageNotifications(baseTime) {
+            if (!('serviceWorker' in navigator) || Notification.permission !== "granted") return;
+        
+            navigator.serviceWorker.ready.then((registration) => {
+                // Limpa notificações anteriores para evitar duplicidade
+                if (registration.getNotifications) {
+                    registration.getNotifications().then(notifications => {
+                        notifications.forEach(n => n.close());
+                    });
+                }
+        
+                // Agenda os próximos estágios fisiológicos relevantes baseado na base de dados
+                fastingStages.forEach(stage => {
+                    const stageStartMs = baseTime.getTime() + (stage.min * 60 * 60 * 1000);
+                    
+                    // Só agendamos estágios que vão acontecer no futuro
+                    if (stageStartMs > Date.now()) {
+                        navigator.serviceWorker.controller.postMessage({
+                            action: 'scheduleNotification',
+                            title: `JejumPro: Novo Estágio Alcançado!`,
+                            timestamp: stageStartMs,
+                            options: {
+                                body: `${stage.min}-${stage.max}H → ${stage.title}`,
+                                icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                                badge: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                                tag: `stage_change_${stage.stageKey}`,
+                                renotify: true
+                            }
+                        });
+                    }
+                });
+            });
+        }
+                
         function requestNotificationPermission() {
             if (!("Notification" in window)) {
                 showToast("Este navegador não suporta notificações de sistema.", "error");
@@ -649,6 +693,8 @@
             toggleControls(true); 
             runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
+
+            scheduleBackgroundStageNotifications(startTime);
             
             // DISPARO DA NOTIFICAÇÃO PUSH NATIVA
             showToast("Seu jejum agendado começou agora!", "success");
@@ -699,16 +745,20 @@
                 startTime = now;
             }
 
-            // ATIVA MODO IMEDIATO / RETROATIVO
+           // ATIVA MODO IMEDIATO / RETROATIVO
             isFasting = true;
             isScheduled = false;
             localStorage.setItem('jejum_startTime', startTime.getTime());
             localStorage.removeItem('jejum_isScheduled');
-
+        
             toggleControls(true);
             updateScheduledTimes();
             runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
+            
+            // --- ADICIONE ESTA LINHA AQUI ---
+            scheduleBackgroundStageNotifications(startTime);
+        
             showToast("Jejum iniciado com sucesso!", "success");
         }
 
