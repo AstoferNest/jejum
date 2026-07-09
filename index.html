@@ -515,20 +515,20 @@
         }
 
 
-        // Função para despachar o agendamento de notificações para o Service Worker
+        // 3. AGENDADOR DE ESTÁGIOS EM SEGUNDO PLANO
         function scheduleBackgroundStageNotifications(baseTime) {
             if (!('serviceWorker' in navigator) || Notification.permission !== "granted") return;
         
             navigator.serviceWorker.ready.then((registration) => {
-                // Limpa notificações anteriores para evitar duplicidade
                 if (registration.getNotifications) {
                     registration.getNotifications().then(notifications => {
-                        notifications.forEach(n => n.close());
+                        // Limpa apenas os de estágio anteriores para não chocar
+                        notifications.forEach(n => {
+                            if(n.tag.startsWith('stage_change_')) n.close();
+                        });
                     });
                 }
         
-                // Se o controller ainda não estiver pronto (comum no primeiro carregamento), 
-                // nós ativamos um fallback ou esperamos um milissegundo
                 const worker = navigator.serviceWorker.controller || registration.active;
         
                 fastingStages.forEach(stage => {
@@ -683,33 +683,19 @@
             document.getElementById('endTimeDisplay').textContent = endTime.toLocaleString('pt-BR', options);
         }
 
-        // --- DISPARADOR DE CRONÔMETRO DO AGENDAMENTO AUTOMÁTICO ---
-        // --- DISPARADOR DE CRONÔMETRO DO AGENDAMENTO AUTOMÁTICO ---
+        // 2. DISPARADOR LOCAL (CASO O APP ESTEJA ABERTO NA HORA)
         function triggerScheduledStart() {
             isScheduled = false;
             isFasting = true;
             localStorage.removeItem('jejum_isScheduled');
             
-            // Oculta o alerta de agendado
             document.getElementById('scheduledAlertWidget').classList.add('hidden');
             
-            // ATUALIZAÇÃO AUTOMÁTICA DA INTERFACE (Evita a necessidade de atualizar a página)
             toggleControls(true); 
             runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
-
-            scheduleBackgroundStageNotifications(startTime);
             
-            // DISPARO DA NOTIFICAÇÃO PUSH NATIVA
             showToast("Seu jejum agendado começou agora!", "success");
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("Jejum Iniciado! ⏳", { 
-                    body: "Seu cronômetro programado começou a rodar oficialmente agora.", 
-                    icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                    tag: "jejum_pro_start",
-                    renotify: true
-                });
-            }
         }
 
         // --- CONTROLADOR PRINCIPAL DE INÍCIO / AGENDAMENTO ---
@@ -739,6 +725,31 @@
                     updateScheduledTimes();
                     displayScheduledState();
                     
+                    // AGENDAMENTO EM BACKGROUND: Envia o Push de início para o SW rodar mesmo fechado
+                    if ('serviceWorker' in navigator && Notification.permission === "granted") {
+                        navigator.serviceWorker.ready.then((registration) => {
+                            const worker = navigator.serviceWorker.controller || registration.active;
+                            if (worker) {
+                                worker.postMessage({
+                                    action: 'scheduleNotification',
+                                    title: "Jejum Iniciado! ⏳",
+                                    timestamp: startTime.getTime(),
+                                    options: {
+                                        body: "Seu cronômetro programado começou a rodar oficialmente agora.",
+                                        icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                                        badge: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                                        tag: "jejum_pro_start",
+                                        renotify: true
+                                    }
+                                });
+                            }
+                        });
+                    }
+        
+                    // Também agenda os estágios futuros com base no horário programado
+                    scheduleBackgroundStageNotifications(startTime);
+                    
+                    // Mantém o timer local caso o usuário continue com o app aberto
                     const timeToWait = startTime.getTime() - now.getTime();
                     scheduleTimeout = setTimeout(triggerScheduledStart, timeToWait);
                     
@@ -748,8 +759,8 @@
             } else {
                 startTime = now;
             }
-
-           // ATIVA MODO IMEDIATO / RETROATIVO
+        
+            // ATIVA MODO IMEDIATO
             isFasting = true;
             isScheduled = false;
             localStorage.setItem('jejum_startTime', startTime.getTime());
@@ -760,7 +771,7 @@
             runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
             
-            // --- ADICIONE ESTA LINHA AQUI ---
+            // Dispara os estágios imediatamente
             scheduleBackgroundStageNotifications(startTime);
         
             showToast("Jejum iniciado com sucesso!", "success");
