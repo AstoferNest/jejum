@@ -527,24 +527,28 @@
                     });
                 }
         
-                // Agenda os próximos estágios fisiológicos relevantes baseado na base de dados
+                // Se o controller ainda não estiver pronto (comum no primeiro carregamento), 
+                // nós ativamos um fallback ou esperamos um milissegundo
+                const worker = navigator.serviceWorker.controller || registration.active;
+        
                 fastingStages.forEach(stage => {
                     const stageStartMs = baseTime.getTime() + (stage.min * 60 * 60 * 1000);
                     
-                    // Só agendamos estágios que vão acontecer no futuro
                     if (stageStartMs > Date.now()) {
-                        navigator.serviceWorker.controller.postMessage({
-                            action: 'scheduleNotification',
-                            title: `JejumPro: Novo Estágio Alcançado!`,
-                            timestamp: stageStartMs,
-                            options: {
-                                body: `${stage.min}-${stage.max}H → ${stage.title}`,
-                                icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                                badge: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                                tag: `stage_change_${stage.stageKey}`,
-                                renotify: true
-                            }
-                        });
+                        if (worker) {
+                            worker.postMessage({
+                                action: 'scheduleNotification',
+                                title: `JejumPro: Novo Estágio Alcançado!`,
+                                timestamp: stageStartMs,
+                                options: {
+                                    body: `${stage.min}-${stage.max}H → ${stage.title}`,
+                                    icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                                    badge: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                                    tag: `stage_change_${stage.stageKey}`,
+                                    renotify: true
+                                }
+                            });
+                        }
                     }
                 });
             });
