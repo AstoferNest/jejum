@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#0b0f19">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/6366f1/ffffff?text=JP">
+    <link class="apple-touch-icon" href="https://placehold.co/192x192/6366f1/ffffff?text=JP">
 
     <!-- Tailwind CSS para design moderno e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +26,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #0b0f19;
         }
-        /* Custom scrollbar para visual premium */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -41,13 +40,11 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #4b5563;
         }
-        /* Efeito de vidro (Glassmorphism) */
         .glass-card {
             background: rgba(17, 24, 39, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        /* Animação suave para troca de estados */
         .transition-all-300 {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -55,12 +52,12 @@
 </head>
 <body class="text-gray-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-20">
 
-    <!-- TOAST DE NOTIFICAÇÃO ELEGANTE (Substitui alerts) -->
+    <!-- TOAST DE NOTIFICAÇÃO ELEGANTE -->
     <div id="customToast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 z-50 text-sm font-semibold opacity-0 translate-y-10 pointer-events-none">
         Mensagem do Sistema
     </div>
 
-    <!-- MODAL DE CONFIRMAÇÃO CUSTOMIZADO (Substitui confirm) -->
+    <!-- MODAL DE CONFIRMAÇÃO CUSTOMIZADO -->
     <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-card max-w-sm w-full p-6 rounded-2xl border border-gray-800 shadow-2xl">
             <h3 id="confirmTitle" class="text-lg font-bold text-gray-100 mb-2">Confirmar Ação</h3>
@@ -85,10 +82,7 @@
                 </div>
             </div>
             
-            <div class="flex gap-2">
-                <button onclick="requestNotificationPermission()" id="btnNotificationAllow" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-amber-500/30 p-2 rounded-lg transition-all" title="Ativar Notificações de Estágio">
-                    <i class="fa-solid fa-bell"></i>
-                </button>
+            <div>
                 <button onclick="togglePWAInstructions()" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-mobile-screen-button"></i> Instalar
                 </button>
@@ -124,7 +118,7 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL (Gerenciador de Abas SPA) -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-grow max-w-md w-full mx-auto p-4 space-y-6">
 
         <!-- ================= ABA DE JORNADA (TRACKER) ================= -->
@@ -135,7 +129,6 @@
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl"></div>
 
                 <div class="relative flex flex-col items-center">
-                    <!-- Seletor de Meta de Jejum -->
                     <div class="w-full flex justify-between items-center mb-4">
                         <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Meta Selecionada:</span>
                         <select id="fastGoal" class="bg-gray-800 text-indigo-300 text-xs font-bold py-1.5 px-3 rounded-lg border border-gray-700 focus:outline-none focus:border-indigo-500" onchange="updateGoal()">
@@ -149,14 +142,11 @@
                         </select>
                     </div>
 
-                    <!-- Display Visual Circular (SVG) -->
+                    <!-- Display Visual Circular -->
                     <div class="relative w-56 h-56 flex items-center justify-center my-2">
                         <svg class="w-full h-full transform -rotate-90">
-                            <!-- Círculo de fundo -->
                             <circle cx="112" cy="112" r="96" stroke="#1f2937" stroke-width="8" fill="transparent" />
-                            <!-- Círculo de progresso -->
                             <circle id="progressCircle" cx="112" cy="112" r="96" stroke="url(#indigoGrad)" stroke-width="10" stroke-linecap="round" fill="transparent" stroke-dasharray="603" stroke-dashoffset="603" class="transition-all-300" />
-                            
                             <defs>
                                 <linearGradient id="indigoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#6366f1" />
@@ -165,7 +155,6 @@
                             </defs>
                         </svg>
 
-                        <!-- Textos Internos do Círculo -->
                         <div class="absolute flex flex-col items-center justify-center text-center">
                             <span id="timerStateLabel" class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1">ALIMENTADO</span>
                             <div id="timerDisplay" class="text-3xl font-black tabular-nums tracking-tight animate-pulse">00:00:00</div>
@@ -173,7 +162,6 @@
                         </div>
                     </div>
 
-                    <!-- Status de Início e Término Previstos -->
                     <div class="w-full grid grid-cols-2 gap-3 mt-3 text-center border-t border-b border-gray-800/80 py-3 mb-4">
                         <div>
                             <p class="text-[10px] text-gray-400 uppercase tracking-wider">Início</p>
@@ -203,20 +191,15 @@
                                 <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Hora</label>
                                 <input type="time" id="manualTime" class="w-full bg-gray-800 border border-gray-700 text-xs font-medium rounded-xl p-2 focus:outline-none focus:border-indigo-500 text-white">
                             </div>
-                            <div class="col-span-2 text-[10px] text-purple-300 mt-1 flex items-center gap-1">
-                                <i class="fa-solid fa-circle-info"></i> Definir horário futuro ativa o <b>Modo Agendado</b>.
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Estado Agendado Alerta Widget -->
                     <div id="scheduledAlertWidget" class="hidden w-full bg-indigo-950/40 border border-indigo-500/30 p-3.5 rounded-2xl mb-4 text-center">
                         <p class="text-xs text-indigo-300 font-semibold flex items-center justify-center gap-2">
                             <i class="fa-solid fa-calendar-check animate-bounce"></i> Jejum agendado para iniciar automaticamente!
                         </p>
                     </div>
 
-                    <!-- Botões de Controle -->
                     <div class="w-full grid grid-cols-2 gap-4">
                         <button id="btnStart" onclick="startFasting()" class="col-span-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-indigo-500/25 transition-all-300 flex items-center justify-center gap-2">
                             <i class="fa-solid fa-play"></i> Iniciar / Agendar Jejum
@@ -231,10 +214,8 @@
                 </div>
             </section>
 
-            <!-- CONTAINER PINADO (Ancoragem fixa quando o balão for pinado) -->
             <div id="pinnedStageContainer" class="space-y-4"></div>
 
-            <!-- BOTÃO PARA REABRIR O BALÃO CASO FECHADO E DESPINADO -->
             <div id="reopenStageWidget" class="hidden flex justify-center">
                 <button onclick="showStageBalloon()" class="bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-xs font-bold px-4 py-2.5 rounded-full shadow-lg transition-all flex items-center gap-2">
                     <i class="fa-solid fa-circle-nodes animate-pulse"></i> Ver Estágio Fisiológico Atual
@@ -266,7 +247,7 @@
             </section>
         </div>
 
-        <!-- ================= ABA DE RECEITAS (RECIPES PAGE) ================= -->
+        <!-- ================= ABA DE RECEITAS ================= -->
         <div id="recipesTab" class="hidden space-y-6">
             <section class="glass-card rounded-3xl p-5 shadow-xl">
                 <div class="flex justify-between items-center mb-4">
@@ -281,7 +262,6 @@
                     Receitas científicas organizadas estrategicamente por <b>Estágios do Jejum</b>. Selecione o estágio ideal para se nutrir ou preparar o reabastecimento.
                 </p>
 
-                <!-- Filtro por Estágio -->
                 <div class="mb-5">
                     <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Filtrar por Estágio:</label>
                     <select id="recipeStageFilter" onchange="filterRecipes()" class="w-full bg-gray-800 text-purple-300 text-xs font-semibold py-2 px-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500">
@@ -298,15 +278,13 @@
                     </select>
                 </div>
 
-                <div class="space-y-4" id="recipesList">
-                    <!-- Receitas dinâmicas injetadas por JS -->
-                </div>
+                <div class="space-y-4" id="recipesList"></div>
             </section>
         </div>
 
     </main>
 
-    <!-- ================= BALÃO FLUTUANTE DE ESTÁGIO (POPOVER) ================= -->
+    <!-- BALÃO FLUTUANTE DE ESTÁGIO -->
     <div id="stageFloatingBalloon" class="fixed top-1/4 right-4 left-4 md:right-auto md:left-1/2 md:-translate-x-1/2 md:max-w-md z-50 glass-card rounded-3xl p-5 border-l-4 border-indigo-500 shadow-2xl transition-all duration-300 hidden">
         <div class="flex justify-between items-start mb-3">
             <div>
@@ -315,11 +293,9 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <!-- Botão PIN/FIXAR -->
                 <button onclick="togglePinStage()" id="pinStageBtn" class="text-gray-400 hover:text-indigo-400 p-1.5 transition-colors" title="Fixar / Desafixar abaixo do cronômetro">
                     <i class="fa-solid fa-thumbtack text-sm"></i>
                 </button>
-                <!-- Botão FECHAR -->
                 <button onclick="hideStageBalloon()" class="text-gray-400 hover:text-red-400 p-1.5 transition-colors">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
@@ -330,9 +306,7 @@
             <i class="fa-solid fa-circle-nodes text-indigo-400"></i> Estágio Fisiológico
         </h3>
 
-        <div id="stageContent" class="space-y-4">
-            <!-- Conteúdo injetado via JS -->
-        </div>
+        <div id="stageContent" class="space-y-4"></div>
     </div>
 
     <!-- NAVEGAÇÃO INFERIOR ESTILO APP -->
@@ -350,107 +324,31 @@
         </div>
     </nav>
 
-    <!-- SISTEMA E LÓGICA DO APP (JavaScript) -->
     <script>
-        // --- BASE DE DADOS DOS ESTÁGIOS ---
         const fastingStages = [
-            {
-                min: 0, max: 4,
-                title: "Aumento do açúcar no sangue",
-                body: "O corpo está em um estado metabólico normal, digerindo alimentos e usando calorias recentes para energia. Os níveis de glicose no sangue e insulina estão elevados.",
-                feelings: ["Saciedade e sensação de plenitude", "Níveis normais de energia", "Clareza mental"],
-                coping: ["Mantenha atividades regulares", "Evite comer em excesso ou fazer lanches", "Mantenha-se hidratado com água ou chá de ervas"],
-                color: "indigo-500",
-                stageKey: "0-4"
-            },
-            {
-                min: 4, max: 8,
-                title: "Queda do açúcar no sangue",
-                body: "Os níveis de glicose e insulina no sangue diminuem à medida que a digestão se completa. O corpo começa a utilizar o glicogênio armazenado para energia.",
-                feelings: ["Podem começar leves pontadas de fome", "Pequena queda nos níveis de energia", "Potenciais leves mudanças de humor"],
-                coping: ["Mantenha-se ocupado com atividades leves", "Beba água ou chá de ervas para se sentir saciado", "Pratique mindfulness ou meditação"],
-                color: "blue-500",
-                stageKey: "4-8"
-            },
-            {
-                min: 8, max: 10,
-                title: "Açúcar no sangue normal",
-                body: "Os níveis de insulina caem ainda mais, levando a exaustão do glicogênio. O corpo começa a oxidar gordura e se adapta ao uso de energia armazenada.",
-                feelings: ["Sensações de fome aumentada", "Possível leve tontura ou vertigem", "Potencial irritabilidade"],
-                coping: ["Garanta uma hidratação adequada", "Considere a suplementação de eletrólitos (sem açúcar)", "Faça pequenas pausas para descansar"],
-                color: "cyan-500",
-                stageKey: "8-10"
-            },
-            {
-                min: 10, max: 14,
-                title: "Início da queima de gordura",
-                body: "As reservas de glicogênio estão significativamente reduzidas, aumentando o metabolismo da gordura. A gliconeogênese mantém os níveis de glicose no sangue, marcando a mudança para a gordura como a principal fonte de energia.",
-                feelings: ["Fome perceptível", "Possível fadiga ou fraqueza", "Possível dor de headache", "Alguns podem experimentar maior clareza mental"],
-                coping: ["Considere tomar um multivitamínico", "Pratique exercícios leves como caminhada ou yoga", "Pratique técnicas de redução de estresse", "Se estiver trabalhando, faça pausas regulares para gerenciar os níveis de energia"],
-                color: "teal-500",
-                stageKey: "10-14"
-            },
-            {
-                min: 14, max: 18,
-                title: "Entrando em cetose",
-                body: "A cetose leve começa com a queima acelerada de gordura e produção de cetonas. Os benefícios cognitivos podem se tornar mais perceptíveis.",
-                feelings: ["A fome pode começar a diminuir", "Os níveis de energia geralmente começam a aumentar", "Clareza mental e foco aprimorados", "Possível leve sensação de euforia"],
-                coping: ["Mantenha uma ingestão constante de água", "Evite atividades físicas intensas", "Use a clareza mental para tarefas criativas", "Se o sono for afetado, considere técnicas de relaxamento antes de dormir"],
-                color: "emerald-500",
-                stageKey: "14-18"
-            },
-            {
-                min: 18, max: 24,
-                title: "Início da autofagia",
-                body: "A produção de cetonas aumenta e os processos de autofagia são ativados. O corpo depende principalmente de gorduras e cetonas para obter energia.",
-                feelings: ["Redução significativa da fome", "Aumento da alerta e energia", "Melhoria do humor e do estado mental", "Possível leve euforia"],
-                coping: ["Pratique atividades leves a moderadas para utilizar o aumento de energia", "Pratique mindfulness", "Mantenha-se socialmente envolvido", "Garanta um ambiente fresco e confortável para dormir"],
-                color: "green-500",
-                stageKey: "18-24"
-            },
-            {
-                min: 24, max: 36,
-                title: "Cetose profunda",
-                body: "O corpo atinge a cetose profunda com pico de autofagia e aumento da secreção de hormônio do crescimento. Os processos de reparo celular estão altamente ativos.",
-                feelings: ["A fome geralmente diminui muito", "Altos níveis de energia e clareza mental", "Possível leve dor de cabeça ou tontura", "Aumento da sensibilidade ao frio"],
-                coping: ["Garanta descanso e sono adequados", "Considere exercícios leves", "Suplemente com eletrólitos, se necessário", "Mantenha-se aquecido e confortável"],
-                color: "amber-500",
-                stageKey: "24-36"
-            },
-            {
-                min: 36, max: 48,
-                title: "Sensibilidade à insulina",
-                body: "A sensibilidade à insulina melhora e os marcadores de inflamação diminuem. O corpo está totalmente adaptado ao uso de gordura como combustível.",
-                feelings: ["Níveis de energia flutuantes", "Possível retorno das sensações de fome", "Sensibilidade à temperatura", "Possível leve náusea"],
-                coping: ["Monitore os sinais de desequilíbrio de eletrólitos", "Envolva-se em atividades físicas muito leves", "Pratique técnicas de relaxation", "Considere o consumo de caldo de ossos ou suplementação de eletrólitos se sentir fraqueza"],
-                color: "orange-500",
-                stageKey: "36-48"
-            },
-            {
-                min: 48, max: 72,
-                title: "Autofagia máxima",
-                body: "A autofagia atinge seu máximo, levando a um reinício significativo do sistema imunológico e possível produção de células-tronco. É essencial encerrar o jejum corretamente.",
-                feelings: ["A fome pode voltar fortemente", "Possível fadiga ou fraqueza", "Experiências sensoriais aumentadas", "Possível instabilidade emocional"],
-                coping: ["Monitore atentamente o estado físico e mental", "Prepare-se para encerrar o jejum com segurança", "Esforço físico mínimo", "Garanta um ambiente de apoio"],
-                color: "red-500",
-                stageKey: "48-72"
-            }
+            { min: 0, max: 4, title: "Aumento do açúcar no sangue", body: "O corpo está em um estado metabólico normal, digerindo alimentos e usando calorias recentes para energia.", feelings: ["Saciedade", "Energia normal"], coping: ["Mantenha atividades regulares", "Hidrate-se"], color: "indigo-500", stageKey: "0-4" },
+            { min: 4, max: 8, title: "Queda do açúcar no sangue", body: "Os níveis de glicose e insulina diminuem. O corpo começa a utilizar o glicogênio armazenado.", feelings: ["Leve fome", "Pequena queda de energia"], coping: ["Mantenha-se ocupado"], color: "blue-500", stageKey: "4-8" },
+            { min: 8, max: 10, title: "Açúcar no sangue normal", body: "Níveis de insulina caem mais. O corpo começa a se adaptar para queimar gordura.", feelings: ["Fome aumentada"], coping: ["Garanta boa hidratação"], color: "cyan-500", stageKey: "8-10" },
+            { min: 10, max: 14, title: "Início da queima de gordura", body: "Glicogênio reduzido. Mudança para a gordura como fonte primária de energia.", feelings: ["Fome perceptível", "Fadiga leve"], coping: ["Exercícios leves (caminhada/yoga)"], color: "teal-500", stageKey: "10-14" },
+            { min: 14, max: 18, title: "Entrando em cetose", body: "Cetose leve começa. Produção inicial de cetonas trazendo clareza mental.", feelings: ["Fome diminui", "Clareza mental"], coping: ["Mantenha foco em tarefas criativas"], color: "emerald-500", stageKey: "14-18" },
+            { min: 18, max: 24, title: "Início da autofagia", body: "Processos de reciclagem celular (autofagia) começam a ser ativados.", feelings: ["Redução da fome", "Alerta aumentado"], coping: ["Atividades leves a moderadas"], color: "green-500", stageKey: "18-24" },
+            { min: 24, max: 36, title: "Cetose profunda", body: "Pico de autofagia e processos de reparo celular altamente ativos.", feelings: ["Alta energia", "Sensibilidade ao frio"], coping: ["Suplemente com eletrólitos se necessário"], color: "amber-500", stageKey: "24-36" },
+            { min: 36, max: 48, title: "Sensibilidade à insulina", body: "Sensibilidade melhora muito. Corpo totalmente adaptado ao combustível de gordura.", feelings: ["Energia flutuante"], coping: ["Técnicas de relaxamento"], color: "orange-500", stageKey: "36-48" },
+            { min: 48, max: 72, title: "Autofagia máxima", body: "Autofagia atinge o pico. Essencial planejar o encerramento correto e seguro do jejum.", feelings: ["Fome pode retornar forte"], coping: ["Prepare refeições leves de quebra"], color: "red-500", stageKey: "48-72" }
         ];
 
-        // --- BANCO DE RECEITAS ---
         const recipes = [
-            { id: 1, stage: "0-4", title: "Mix de Nuts Tostadas com Alecrim", type: "Estágio 0-4H: Ajuste Digestivo", ingredients: ["50g de nozes pecãs", "50g de amêndoas inteiras", "1 colher de sopa de azeite de oliva", "1 ramo de alecrim fresco picado", "Uma pitada generosa de sal marinho"], instructions: "Misture as nuts com o azeite, o alecrim e o sal. Toste em fogo médio em uma frigideira por 5 minutos até exalar aroma aromático. Ótimo snack de transição para manter a estabilidade no período digestivo inicial." },
-            { id: 2, stage: "4-8", title: "Chá Termogênico de Matchá com Gengibre", type: "Estágio 4-8H: Combate ao Declínio de Energia", ingredients: ["1 colher de chá de matchá em pó", "2g de gengibre fresco fatiado", "300ml de água mineral quente", "5 gotas de extrato de própolis verde"], instructions: "Aqueça a água sem deixar ferver. Infunda o gengibre por 3 minutos. Adicione o pó de matchá e misture energicamente até dissolver. Adicione o própolis. Ajuda a mitigar a leve queda de energia do estágio." },
-            { id: 3, stage: "8-10", title: "Elixir Salino de Hortelã e Limão", type: "Estágio 8-10H: Controle de Insulina & Sais", ingredients: ["400ml de água bem gelada", "Suco de 1/2 limão espremido", "1 pitada de sal rosa do Himalaia (eletrólitos)", "Folhas frescas de hortelã amassadas"], instructions: "Combine todos os ingredientes em uma coqueteleira. Misture vigorosamente e tome bem fresco. O sal rosa fornece minerais cruciais na exaustão de glicogênio para mitigar dores de cabeça." },
-            { id: 4, stage: "10-14", title: "Abacate Premium com Azeite e Flor de Sal", type: "Estágio 10-14H: Transição para Gordura como Combustível", ingredients: ["1/2 abacate Hass (maduro)", "1 colher de sopa de azeite de oliva extravirgem premium", "Flor de sal a gosto", "Pimenta caiena picante (estimulante metabólico)"], instructions: "Corte o abacate ao meio. Regue a cavidade com o azeite, tempere com a flor de sal e a pimenta caiena. Coma com colher. Excelente carga de gorduras limpas para manter a saciedade prolongada." },
-            { id: 5, stage: "14-18", title: "Café Cremoso Cetogênico (Bulletproof)", type: "Estágio 14-18H: Otimização da Cetose", ingredients: ["150ml de café espresso quente", "1 colher de chá de manteiga ghee sem sal", "1 colher de chá de óleo de coco ou óleo MCT", "Canela em pó salpicada"], instructions: "Bata o café, a manteiga ghee e o MCT no mixer até obter uma espuma densa, parecida com um cappuccino. Salpique canela. O MCT fornece energia imediata convertida rapidamente em cetonas no fígado." },
-            { id: 6, stage: "18-24", title: "Caldo de Legumes Filtrado Mineralizante", type: "Estágio 18-24H: Suporte à Autofagia", ingredients: ["1 talo de aipo, 1 abobrinha", "1 cebola roxa picada", "2 dentes de alho esmagados", "1 colher de chá de cúrcuma pura", "1,5L de água filtrada"], instructions: "Cozinhe todos os legumes com temperos em fogo lento por 45 minutos. Coe com peneira fina de forma a obter apenas o caldo translúcido livre de fibras e carboidratos. Repõe sais minerais sem pausar o processo de autofagia celular." },
-            { id: 7, stage: "24-36", title: "Caldo Concentrado de Tutano Bovino", type: "Estágio 24-36H: Reposição Colágena Profunda", ingredients: ["1kg de ossos com tutano", "2 colheres de sopa de vinagre de maçã", "1 colher de sopa de sal marinho integral", "Água até cobrir os ossos na panela de pressão"], instructions: "Adicione os ossos, água e vinagre de maçã na panela. Deixe repousar por 15 minutos e leve à pressão por 2 horas. Coe de forma precisa e consuma o líquido morno em xícaras. Essencial para revitalizar o trato gastrointestinal após 24h." },
-            { id: 8, stage: "36-48", title: "Sopa de Abobrinha Cremosa ao Toque de Ghee", type: "Estágio 36-48H: Quebra Gentil e Reintrodução", ingredients: ["2 abobrinhas médias cozidas", "1 colher de sopa de manteiga ghee", "1 dente de alho frito na manteiga", "Sal marinho e ervas finas desidratadas"], instructions: "Cozinhe as abobrinhas. Bata no liquidificador com um pouco de água do cozimento, a manteiga ghee e o alho refogado até ficar extremamente cremoso. Ajuda no refeed do intestino que ficou mais sensível." },
-            { id: 9, stage: "48-72", title: "Sopa Nutritiva de Abóbora Cabotiá com Gengibre", type: "Estágio 48-72H: Refeed Ultra Seguro de Longo Jejum", ingredients: ["150g de abóbora cabotiá picada", "1 pedaço pequeno de gengibre fresco ralado", "1 colher de sopa de azeite de oliva", "Salsa fresca picada"], instructions: "Cozinhe a abóbora até amaciar por completo. Bata no mixer até virar um creme aveludado e uniforme. Adicione o gengibre e sal. O gengibre atua como anti-inflamatório, prevenindo desconfortos gástricos após jejuns de até 3 dias." }
+            { id: 1, stage: "0-4", title: "Mix de Nuts Tostadas com Alecrim", type: "Estágio 0-4H", ingredients: ["50g de nuts variadas", "1 colher de azeite", "Alecrim e sal"], instructions: "Toste na frigideira por 5 minutos. Snack excelente de transição." },
+            { id: 2, stage: "4-8", title: "Chá Termogênico de Matchá", type: "Estágio 4-8H", ingredients: ["1 colher de chá de matchá", "Gengibre", "300ml de água"], instructions: "Aqueça sem ferver e misture. Combate o declínio de energia." },
+            { id: 3, stage: "8-10", title: "Elixir Salino de Hortelã", type: "Estágio 8-10H", ingredients: ["Suco de 1/2 limão", "Pitada de sal rosa", "Água gelada"], instructions: "Misture tudo. Repõe eletrólitos cruciais." },
+            { id: 4, stage: "10-14", title: "Abacate Premium com Azeite", type: "Estágio 10-14H", ingredients: ["1/2 abacate", "1 colher de azeite", "Flor de sal"], instructions: "Corte e regue com azeite e sal. Gorduras limpas de saciedade prolongada." },
+            { id: 5, stage: "14-18", title: "Café Cremoso Cetogênico", type: "Estágio 14-18H", ingredients: ["150ml de café quente", "1 colher de chá de Ghee", "1 colher de óleo MCT"], instructions: "Bata tudo no mixer até espumar. Carga de energia cetônica direta." },
+            { id: 6, stage: "18-24", title: "Caldo de Legumes Filtrado", type: "Estágio 18-24H", ingredients: ["Aipo, abobrinha, cebola", "Cúrcuma", "1.5L de água"], instructions: "Cozinhe por 45min e coe bem. Use apenas o líquido para repor minerais sem frear autofagia." },
+            { id: 7, stage: "24-36", title: "Caldo Concentrado de Tutano", type: "Estágio 24-36H", ingredients: ["1kg de ossos com tutano", "2 colheres de vinagre de maçã", "Sal"], instructions: "Cozinhe na pressão por 2 horas e coe. Excelente colágeno para proteção intestinal." },
+            { id: 8, stage: "36-48", title: "Sopa de Abobrinha Cremosa ao Ghee", type: "Estágio 36-48H", ingredients: ["2 abobrinhas cozidas", "1 colher de Ghee", "Alho e sal"], instructions: "Bata no liquidificador as abobrinhas e o Ghee até virar um creme. Reintrodução gentil." },
+            { id: 9, stage: "48-72", title: "Sopa Nutritiva de Cabotiá", type: "Estágio 48-72H", ingredients: ["150g de abóbora cabotiá", "Gengibre ralado", "Azeite"], instructions: "Cozinhe a abóbora e bata no mixer com o gengibre. Previne desconfortos pós jejum longo." }
         ];
 
-        // --- ESTADO GLOBAL DA APLICAÇÃO ---
         let fastInterval = null;
         let scheduleTimeout = null;
         let isFasting = false;
@@ -458,24 +356,19 @@
         let startTime = null;
         let selectedGoalHours = 16;
         let history = [];
-        let isStagePinned = false; 
-        let lastNotifiedStageKey = null; // Evita disparo duplicado de Push Notifications no mesmo estágio
+        let isStagePinned = false;
 
-        // --- INICIALIZAÇÃO DO APP ---
         window.onload = function() {
             setupPWA();
             loadFromLocalStorage();
             renderRecipes();
             renderHistory();
             initDateTimeInputs();
-            checkNotificationStatus();
             checkActiveFast();
             applyStagePinState();
         };
 
-        // --- CONFIGURAÇÃO PWA DINÂMICA ---
         function setupPWA() {
-            // Código antigo do manifesto dinâmico mantido...
             const manifestObj = {
                 name: "JejumPro - Seu Guia de Longevidade",
                 short_name: "JejumPro",
@@ -483,105 +376,16 @@
                 display: "standalone",
                 background_color: "#0b0f19",
                 theme_color: "#0b0f19",
-                description: "Controle e monitore seus jejuns interativos com dados metabólicos e estágios.",
+                description: "Controle e monitore seus jejuns interativos com dados metabólicos.",
                 icons: [
-                    { src: "https://placehold.co/192x192/6366f1/ffffff?text=JP", sizes: "192x192", type: "image/png" },
-                    { src: "https://placehold.co/512x512/6366f1/ffffff?text=JejumPro", sizes: "512x512", type: "image/png" }
+                    { src: "https://placehold.co/192x192/6366f1/ffffff?text=JP", sizes: "192x192", type: "image/png" }
                 ]
             };
             const stringManifest = JSON.stringify(manifestObj);
             const blob = new Blob([stringManifest], { type: 'application/json' });
-            const manifestURL = URL.createObjectURL(blob);
-            document.getElementById('manifest-link').setAttribute('href', manifestURL);
-        
-            // --- ADICIONE ESTE BLOCO PARA REGISTRAR O SW ---
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
-                .catch(err => console.error('Falha ao registrar o Service Worker:', err));
-            }
+            document.getElementById('manifest-link').setAttribute('href', URL.createObjectURL(blob));
         }
 
-        // --- SISTEMA DE GESTÃO DE PUSH NOTIFICATIONS ---
-        function checkNotificationStatus() {
-            const btn = document.getElementById('btnNotificationAllow');
-            if (!("Notification" in window)) {
-                btn.classList.add('hidden');
-                return;
-            }
-            if (Notification.permission === "granted") {
-                btn.className = "text-xs bg-emerald-950/40 text-emerald-400 border border-emerald-500/30 p-2 rounded-lg transition-all";
-            }
-        }
-
-
-        // 3. AGENDADOR DE ESTÁGIOS EM SEGUNDO PLANO
-        function scheduleBackgroundStageNotifications(baseTime) {
-            if (!('serviceWorker' in navigator) || Notification.permission !== "granted") return;
-        
-            navigator.serviceWorker.ready.then((registration) => {
-                if (registration.getNotifications) {
-                    registration.getNotifications().then(notifications => {
-                        // Limpa apenas os de estágio anteriores para não chocar
-                        notifications.forEach(n => {
-                            if(n.tag.startsWith('stage_change_')) n.close();
-                        });
-                    });
-                }
-        
-                const worker = navigator.serviceWorker.controller || registration.active;
-        
-                fastingStages.forEach(stage => {
-                    const stageStartMs = baseTime.getTime() + (stage.min * 60 * 60 * 1000);
-                    
-                    if (stageStartMs > Date.now()) {
-                        if (worker) {
-                            worker.postMessage({
-                                action: 'scheduleNotification',
-                                title: `JejumPro: Novo Estágio Alcançado!`,
-                                timestamp: stageStartMs,
-                                options: {
-                                    body: `${stage.min}-${stage.max}H → ${stage.title}`,
-                                    icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                                    badge: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                                    tag: `stage_change_${stage.stageKey}`,
-                                    renotify: true
-                                }
-                            });
-                        }
-                    }
-                });
-            });
-        }
-                
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                showToast("Este navegador não suporta notificações de sistema.", "error");
-                return;
-            }
-            Notification.requestPermission().then(permission => {
-                checkNotificationStatus();
-                if (permission === "granted") {
-                    showToast("Notificações de estágio ativadas com sucesso!", "success");
-                    new Notification("JejumPro Ativo", { body: "Você será avisado sempre que seu corpo mudar de estágio metabólico.", icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP" });
-                } else {
-                    showToast("Permissão de notificações recusada.", "error");
-                }
-            });
-        }
-
-        function triggerPushNotification(stageTitle, stageInterval) {
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(`JejumPro: Novo Estágio Alcançado!`, {
-                    body: `${stageInterval} → ${stageTitle}`,
-                    icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                    tag: "jejum_pro_stage_change",
-                    renotify: true
-                });
-            }
-        }
-
-        // --- ABA SELETORA (SPA) ---
         function switchTab(tabName) {
             const trackerTab = document.getElementById('trackerTab');
             const recipesTab = document.getElementById('recipesTab');
@@ -593,7 +397,7 @@
                 recipesTab.classList.add('hidden');
                 tabBtnTracker.className = "flex flex-col items-center gap-1 text-indigo-400 font-semibold transition-all";
                 tabBtnRecipes.className = "flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition-all";
-            } else if (tabName === 'recipes') {
+            } else {
                 trackerTab.classList.add('hidden');
                 recipesTab.classList.remove('hidden');
                 tabBtnTracker.className = "flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition-all";
@@ -607,21 +411,15 @@
             document.getElementById('manualTime').value = now.toTimeString().substring(0,5);
         }
 
+        document.getElementById('toggleManual').checked = false;
         function toggleManualInputs() {
             const isChecked = document.getElementById('toggleManual').checked;
-            const container = document.getElementById('manualInputs');
-            if (isChecked) {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
+            document.getElementById('manualInputs').classList.toggle('hidden', !isChecked);
         }
 
-        // --- CARREGAR DADOS ---
         function loadFromLocalStorage() {
             const savedHistory = localStorage.getItem('jejum_history');
             if (savedHistory) history = JSON.parse(savedHistory);
-            
             const savedGoal = localStorage.getItem('jejum_goal');
             if (savedGoal) {
                 selectedGoalHours = parseInt(savedGoal);
@@ -631,7 +429,6 @@
             if (savedPinState) isStagePinned = JSON.parse(savedPinState);
         }
 
-        // --- VERIFICAR ESTADOS ATIVOS (EM ANDAMENTO OU AGENDADO) ---
         function checkActiveFast() {
             const savedStart = localStorage.getItem('jejum_startTime');
             const savedScheduled = localStorage.getItem('jejum_isScheduled');
@@ -641,17 +438,13 @@
                 const now = new Date();
 
                 if (savedScheduled === 'true' && startTime > now) {
-                    // Restaura estado agendado em espera
                     isScheduled = true;
                     isFasting = false;
                     toggleControls(true);
                     updateScheduledTimes();
                     displayScheduledState();
-                    
-                    const timeToWait = startTime.getTime() - now.getTime();
-                    scheduleTimeout = setTimeout(triggerScheduledStart, timeToWait);
+                    scheduleTimeout = setTimeout(triggerScheduledStart, startTime.getTime() - now.getTime());
                 } else {
-                    // Restaura ou ativa o jejum rodando direto
                     isFasting = true;
                     isScheduled = false;
                     localStorage.removeItem('jejum_isScheduled');
@@ -669,36 +462,28 @@
         function updateGoal() {
             selectedGoalHours = parseInt(document.getElementById('fastGoal').value);
             localStorage.setItem('jejum_goal', selectedGoalHours);
-            if (isFasting || isScheduled) {
-                updateScheduledTimes();
-            }
+            if (isFasting || isScheduled) updateScheduledTimes();
         }
 
         function updateScheduledTimes() {
             if (!startTime) return;
             const options = { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' };
             document.getElementById('startTimeDisplay').textContent = startTime.toLocaleString('pt-BR', options);
-            
             const endTime = new Date(startTime.getTime() + (selectedGoalHours * 60 * 60 * 1000));
             document.getElementById('endTimeDisplay').textContent = endTime.toLocaleString('pt-BR', options);
         }
 
-        // 2. DISPARADOR LOCAL (CASO O APP ESTEJA ABERTO NA HORA)
         function triggerScheduledStart() {
             isScheduled = false;
             isFasting = true;
             localStorage.removeItem('jejum_isScheduled');
-            
             document.getElementById('scheduledAlertWidget').classList.add('hidden');
-            
             toggleControls(true); 
             runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
-            
-            showToast("Seu jejum agendado começou agora!", "success");
+            showToast("Seu jejum agendado começou!", "success");
         }
 
-        // --- CONTROLADOR PRINCIPAL DE INÍCIO / AGENDAMENTO ---
         function startFasting() {
             const isManual = document.getElementById('toggleManual').checked;
             const now = new Date();
@@ -706,74 +491,33 @@
             if (isManual) {
                 const dateVal = document.getElementById('manualDate').value;
                 const timeVal = document.getElementById('manualTime').value;
-                
-                if (!dateVal || !timeVal) {
-                    showToast("Selecione data e hora válidas!", "error");
-                    return;
-                }
-                
+                if (!dateVal || !timeVal) { showToast("Selecione data e hora válidas!", "error"); return; }
                 startTime = new Date(`${dateVal}T${timeVal}`);
                 
                 if (startTime > now) {
-                    // ATIVA MODO FUTURO AGENDADO
                     isScheduled = true;
                     isFasting = false;
                     localStorage.setItem('jejum_startTime', startTime.getTime());
                     localStorage.setItem('jejum_isScheduled', 'true');
-                    
                     toggleControls(true);
                     updateScheduledTimes();
                     displayScheduledState();
-                    
-                    // AGENDAMENTO EM BACKGROUND: Envia o Push de início para o SW rodar mesmo fechado
-                    if ('serviceWorker' in navigator && Notification.permission === "granted") {
-                        navigator.serviceWorker.ready.then((registration) => {
-                            const worker = navigator.serviceWorker.controller || registration.active;
-                            if (worker) {
-                                worker.postMessage({
-                                    action: 'scheduleNotification',
-                                    title: "Jejum Iniciado! ⏳",
-                                    timestamp: startTime.getTime(),
-                                    options: {
-                                        body: "Seu cronômetro programado começou a rodar oficialmente agora.",
-                                        icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                                        badge: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
-                                        tag: "jejum_pro_start",
-                                        renotify: true
-                                    }
-                                });
-                            }
-                        });
-                    }
-        
-                    // Também agenda os estágios futuros com base no horário programado
-                    scheduleBackgroundStageNotifications(startTime);
-                    
-                    // Mantém o timer local caso o usuário continue com o app aberto
-                    const timeToWait = startTime.getTime() - now.getTime();
-                    scheduleTimeout = setTimeout(triggerScheduledStart, timeToWait);
-                    
-                    showToast("Início de jejum agendado com sucesso!", "success");
+                    scheduleTimeout = setTimeout(triggerScheduledStart, startTime.getTime() - now.getTime());
+                    showToast("Início de jejum agendado!", "success");
                     return;
                 }
             } else {
                 startTime = now;
             }
-        
-            // ATIVA MODO IMEDIATO
+
             isFasting = true;
             isScheduled = false;
             localStorage.setItem('jejum_startTime', startTime.getTime());
             localStorage.removeItem('jejum_isScheduled');
-        
             toggleControls(true);
             updateScheduledTimes();
             runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
-            
-            // Dispara os estágios imediatamente
-            scheduleBackgroundStageNotifications(startTime);
-        
             showToast("Jejum iniciado com sucesso!", "success");
         }
 
@@ -781,17 +525,13 @@
             document.getElementById('timerStateLabel').textContent = "AGENDADO";
             document.getElementById('timerStateLabel').className = "text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-1";
             document.getElementById('timerDisplay').textContent = "AGUARDANDO";
-            document.getElementById('timerDisplay').classList.add('animate-pulse');
             document.getElementById('scheduledAlertWidget').classList.remove('hidden');
         }
 
-        // --- EXECUTOR DO CRONÔMETRO ---
         function runFastTimer() {
             if (!startTime || isScheduled) return;
-            
             const now = new Date();
             const differenceMs = now - startTime;
-            
             if (differenceMs < 0) return;
 
             const seconds = Math.floor((differenceMs / 1000) % 60);
@@ -818,28 +558,15 @@
                 document.getElementById('progressCircle').style.stroke = "url(#indigoGrad)";
             }
 
-            const currentHoursDecimal = differenceMs / (1000 * 60 * 60);
-            updatePhysiologicalStage(currentHoursDecimal);
+            updatePhysiologicalStage(differenceMs / (1000 * 60 * 60));
         }
 
-        // --- GERENCIAMENTO DE ESTÁGIO BIOLÓGICO & DISPARO DE PUSH ---
         function updatePhysiologicalStage(hours) {
             let currentStage = fastingStages[0];
             for (let i = 0; i < fastingStages.length; i++) {
-                if (hours >= fastingStages[i].min && hours < fastingStages[i].max) {
-                    currentStage = fastingStages[i];
-                    break;
-                }
+                if (hours >= fastingStages[i].min && hours < fastingStages[i].max) { currentStage = fastingStages[i]; break; }
             }
             if (hours >= 72) currentStage = fastingStages[fastingStages.length - 1];
-
-            // Monitor de Disparo de Notificação Push Nativa por mudança de estágio
-            if (lastNotifiedStageKey !== currentStage.stageKey) {
-                if (lastNotifiedStageKey !== null) { 
-                    triggerPushNotification(currentStage.title, `${currentStage.min}-${currentStage.max}H`);
-                }
-                lastNotifiedStageKey = currentStage.stageKey;
-            }
 
             document.getElementById('stageBadge').textContent = `${currentStage.min}-${currentStage.max}H`;
             document.getElementById('stageInterval').textContent = `Estágio Atual (${hours.toFixed(2)}h decorridas)`;
@@ -865,10 +592,10 @@
 
             if (isStagePinned) {
                 document.getElementById('pinnedStageContainer').innerHTML = `
-                    <div class="glass-card rounded-3xl p-5 border-l-4 border-indigo-500 relative shadow-xl transition-all duration-300">
+                    <div class="glass-card rounded-3xl p-5 border-l-4 border-indigo-500 relative shadow-xl">
                         <div class="flex justify-between items-start mb-3">
                             <span class="bg-indigo-500/10 text-indigo-300 text-[10px] font-extrabold px-2 py-1 rounded-full uppercase">${currentStage.min}-${currentStage.max}H</span>
-                            <button onclick="togglePinStage()" class="text-indigo-400 hover:text-gray-400 p-1" title="Desafixar do layout"><i class="fa-solid fa-thumbtack text-sm"></i></button>
+                            <button onclick="togglePinStage()" class="text-indigo-400 hover:text-gray-400 p-1"><i class="fa-solid fa-thumbtack text-sm"></i></button>
                         </div>
                         <h3 class="text-sm font-bold text-gray-100 flex items-center gap-2 mb-3"><i class="fa-solid fa-circle-nodes text-indigo-400"></i> Estágio Fisiológico Atual</h3>
                         ${dynamicContentHtml}
@@ -891,7 +618,7 @@
             localStorage.removeItem('jejum_stage_closed_by_user');
             applyStagePinState();
             if (isFasting) runFastTimer(); else resetDisplays();
-            showToast(isStagePinned ? "Estágio fixado com sucesso!" : "Estágio flutuante desfixado.", "success");
+            showToast(isStagePinned ? "Estágio fixado!" : "Estágio flutuante desfixado.", "success");
         }
 
         function applyStagePinState() {
@@ -919,27 +646,23 @@
             if (isFasting) runFastTimer();
         }
 
-        // --- ENGINE DO TOAST DE NOTIFICAÇÕES ---
         function showToast(message, type = 'info') {
             const toast = document.getElementById('customToast');
             toast.innerText = message;
             let bgClasses = 'bg-indigo-600 text-white';
             if (type === 'error') bgClasses = 'bg-red-600 text-white';
             if (type === 'success') bgClasses = 'bg-emerald-600 text-white';
-            
             toast.className = `fixed bottom-24 left-1/2 transform -translate-x-1/2 px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 z-50 text-xs font-bold ${bgClasses} tracking-wide`;
             toast.classList.remove('opacity-0', 'translate-y-10');
             setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10'); }, 3000);
         }
 
-        // --- ENGINE DO CONFIRM CUSTOMIZADO ---
         function showCustomConfirm(title, message) {
             return new Promise((resolve) => {
                 document.getElementById('confirmTitle').innerText = title;
                 document.getElementById('confirmMessage').innerText = message;
                 const modal = document.getElementById('customConfirmModal');
                 modal.classList.remove('hidden');
-                
                 const btnYes = document.getElementById('confirmYes');
                 const btnNo = document.getElementById('confirmNo');
                 const cleanup = (value) => {
@@ -952,54 +675,40 @@
             });
         }
 
-        // --- CONCLUIR JEJUM ---
         async function stopFasting() {
-            if (isScheduled) {
-                cancelFasting();
-                return;
-            }
-            const confirmEnd = await showCustomConfirm("Finalizar Jejum", "Deseja realmente finalizar o seu jejum atual e registrar sua jornada no histórico?");
+            if (isScheduled) { cancelFasting(); return; }
+            const confirmEnd = await showCustomConfirm("Finalizar Jejum", "Deseja realmente finalizar o seu jejum atual?");
             if (!confirmEnd) return;
 
             const now = new Date();
             const elapsedHours = (now - startTime) / (1000 * 60 * 60);
-
             history.unshift({ id: Date.now(), start: startTime.getTime(), end: now.getTime(), goal: selectedGoalHours, elapsed: elapsedHours });
             localStorage.setItem('jejum_history', JSON.stringify(history));
-
             cleanupFastingState();
             showToast("Jejum concluído e registrado!", "success");
         }
 
-        // --- CANCELAR / DESCARTAR SESSÃO ---
         async function cancelFasting() {
-            const msg = isScheduled ? "Deseja cancelar o início agendado deste jejum?" : "Deseja descartar a sessão de jejum atual? O progresso não será salvo.";
+            const msg = isScheduled ? "Cancelar início agendado?" : "Descartar a sessão de jejum atual? O progresso não será salvo.";
             const confirmCancel = await showCustomConfirm(isScheduled ? "Cancelar Agendamento" : "Descartar Sessão", msg);
             if (!confirmCancel) return;
-
             cleanupFastingState();
             showToast("Sessão cancelada/descartada.", "error");
         }
 
         function cleanupFastingState() {
-            isFasting = false;
-            isScheduled = false;
-            lastNotifiedStageKey = null;
-            clearInterval(fastInterval);
-            clearTimeout(scheduleTimeout);
-            localStorage.removeItem('jejum_startTime');
-            localStorage.removeItem('jejum_isScheduled');
+            isFasting = false; isScheduled = false;
+            clearInterval(fastInterval); clearTimeout(scheduleTimeout);
+            localStorage.removeItem('jejum_startTime'); localStorage.removeItem('jejum_isScheduled');
             document.getElementById('scheduledAlertWidget').classList.add('hidden');
-            toggleControls(false);
-            resetDisplays();
-            renderHistory();
+            toggleControls(false); resetDisplays(); renderHistory();
         }
 
         function toggleControls(fastingActive) {
             if (fastingActive) {
                 document.getElementById('btnStart').classList.add('hidden');
                 document.getElementById('btnCancel').classList.remove('hidden');
-                document.getElementById('btnStop').classList.toggle('hidden', isScheduled); // Esconde concluir se for agendado
+                document.getElementById('btnStop').classList.toggle('hidden', isScheduled);
                 document.getElementById('fastGoal').disabled = true;
                 document.getElementById('manualSetupContainer').classList.add('hidden');
                 if (!isStagePinned && isFasting) document.getElementById('reopenStageWidget').classList.remove('hidden');
@@ -1031,7 +740,7 @@
             const defaultStageHtml = `
                 <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800">
                     <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-1"><i class="fa-solid fa-dna"></i> Estado Corporal</h4>
-                    <p class="text-xs text-gray-300 leading-relaxed">Inicie um jejum para rastrear as mudanças metabólicas em tempo real e ver as fases que seu corpo passa.</p>
+                    <p class="text-xs text-gray-300 leading-relaxed">Inicie um jejum para rastrear as mudanças metabólicas em tempo real.</p>
                 </div>
             `;
             document.getElementById('stageContent').innerHTML = defaultStageHtml;
@@ -1047,12 +756,11 @@
             }
         }
 
-        // --- RENDERIZAR RECEITAS ---
         function renderRecipes(filterStage = 'all') {
             const container = document.getElementById('recipesList');
             const filtered = filterStage === 'all' ? recipes : recipes.filter(r => r.stage === filterStage);
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs">Nenhuma receita encontrada para este estágio.</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs">Nenhuma receita encontrada.</div>`;
                 return;
             }
             container.innerHTML = filtered.map(recipe => `
@@ -1071,16 +779,14 @@
 
         function filterRecipes() { renderRecipes(document.getElementById('recipeStageFilter').value); }
 
-        // --- RENDERIZAR HISTÓRICO ---
         function renderHistory() {
             const container = document.getElementById('historyContainer');
             if (history.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs"><i class="fa-solid fa-folder-open text-2xl mb-2 block"></i>Nenhuma jornada registrada ainda.</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs"><i class="fa-solid fa-folder-open text-2xl mb-2 block"></i>Nenhuma jornada registrada.</div>`;
                 return;
             }
             container.innerHTML = history.map(item => {
                 const startDate = new Date(item.start);
-                const endDate = new Date(item.end);
                 const isCompleted = item.elapsed >= item.goal;
                 return `
                     <div class="bg-gray-900/40 p-3.5 rounded-xl border border-gray-800 flex items-center justify-between gap-3">
@@ -1104,27 +810,20 @@
 
         async function clearHistory() {
             if (history.length === 0) return;
-            const confirmDelete = await showCustomConfirm("Limpar Histórico", "Tem certeza que deseja apagar permanentemente todas as suas jornadas registradas?");
+            const confirmDelete = await showCustomConfirm("Limpar Histórico", "Tem certeza que deseja apagar permanentemente todas as jornadas?");
             if (confirmDelete) { history = []; localStorage.removeItem('jejum_history'); renderHistory(); showToast("Histórico limpo.", "error"); }
         }
 
         function togglePWAInstructions() { document.getElementById('pwaModal').classList.toggle('hidden'); }
 
-        // --- EXPORTAR HISTÓRICO EM PDF ---
         function downloadHistoryPDF() {
             if (history.length === 0) return;
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(99, 102, 241);
             doc.text("Histórico de Jejum - JejumPro", 15, 20);
-            let yOffset = 42;
-            history.forEach((item, index) => {
-                doc.setFontSize(11); doc.text(`Jejum #${history.length - index}`, 15, yOffset);
-                yOffset += 25;
-            });
             doc.save("historico-jejum-pro.pdf");
         }
 
-        // --- EXPORTAR RECEITAS EM PDF ---
         function downloadRecipesPDF() {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(168, 85, 247);
