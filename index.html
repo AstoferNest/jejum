@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#0b0f19">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link class="apple-touch-icon" href="https://placehold.co/192x192/6366f1/ffffff?text=JP">
+    <link rel="apple-touch-icon" href="logo.png">
 
     <!-- Tailwind CSS para design moderno e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -73,16 +73,17 @@
     <header class="glass-card sticky top-0 z-40 px-4 py-3 border-b border-gray-800">
         <div class="max-w-md mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-hourglass-half text-white text-lg animate-pulse"></i>
-                </div>
+                <img src="logo.png" alt="JejumPro Logo" class="w-10 h-10 rounded-xl object-cover shadow-lg shadow-indigo-500/10">
                 <div>
                     <h1 class="font-extrabold text-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">JejumPro</h1>
                     <p class="text-[10px] text-gray-400 tracking-wider uppercase">Seu Guia de Longevidade</p>
                 </div>
             </div>
             
-            <div>
+            <div class="flex gap-2">
+                <button onclick="requestNotificationPermission()" id="btnNotificationAllow" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-amber-500/30 p-2 rounded-lg transition-all" title="Ativar Notificações de Estágio">
+                    <i class="fa-solid fa-bell"></i>
+                </button>
                 <button onclick="togglePWAInstructions()" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-mobile-screen-button"></i> Instalar
                 </button>
@@ -376,14 +377,16 @@
                 display: "standalone",
                 background_color: "#0b0f19",
                 theme_color: "#0b0f19",
-                description: "Controle e monitore seus jejuns interativos com dados metabólicos.",
+                description: "Controle e monitore seus jejuns interativos com dados metabólicos e estágios.",
                 icons: [
-                    { src: "https://placehold.co/192x192/6366f1/ffffff?text=JP", sizes: "192x192", type: "image/png" }
+                    { src: "logo.png", sizes: "192x192", type: "image/png" },
+                    { src: "logo.png", sizes: "512x512", type: "image/png" }
                 ]
             };
             const stringManifest = JSON.stringify(manifestObj);
             const blob = new Blob([stringManifest], { type: 'application/json' });
-            document.getElementById('manifest-link').setAttribute('href', URL.createObjectURL(blob));
+            const manifestURL = URL.createObjectURL(blob);
+            document.getElementById('manifest-link').setAttribute('href', manifestURL);
         }
 
         function switchTab(tabName) {
