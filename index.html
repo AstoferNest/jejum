@@ -636,18 +636,30 @@
         }
 
         // --- DISPARADOR DE CRONÔMETRO DO AGENDAMENTO AUTOMÁTICO ---
+        // --- DISPARADOR DE CRONÔMETRO DO AGENDAMENTO AUTOMÁTICO ---
         function triggerScheduledStart() {
             isScheduled = false;
             isFasting = true;
             localStorage.removeItem('jejum_isScheduled');
+            
+            // Oculta o alerta de agendado
             document.getElementById('scheduledAlertWidget').classList.add('hidden');
             
-            showToast("Seu jejum agendado começou agora!", "success");
-            if (Notification.permission === "granted") {
-                new Notification("Jejum Iniciado!", { body: "Seu cronômetro programado começou a rodar oficialmente.", icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP" });
-            }
-            
+            // ATUALIZAÇÃO AUTOMÁTICA DA INTERFACE (Evita a necessidade de atualizar a página)
+            toggleControls(true); 
+            runFastTimer();
             fastInterval = setInterval(runFastTimer, 1000);
+            
+            // DISPARO DA NOTIFICAÇÃO PUSH NATIVA
+            showToast("Seu jejum agendado começou agora!", "success");
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("Jejum Iniciado! ⏳", { 
+                    body: "Seu cronômetro programado começou a rodar oficialmente agora.", 
+                    icon: "https://placehold.co/192x192/6366f1/ffffff?text=JP",
+                    tag: "jejum_pro_start",
+                    renotify: true
+                });
+            }
         }
 
         // --- CONTROLADOR PRINCIPAL DE INÍCIO / AGENDAMENTO ---
