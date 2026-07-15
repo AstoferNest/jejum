@@ -20,6 +20,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- jsPDF para exportação de relatórios -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         body {
@@ -81,12 +83,56 @@
             </div>
             
             <div class="flex gap-2">
+                <button onclick="toggleAccountModal()" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-user"></i> <span id="accountBtnLabel">Conta</span>
+                </button>
                 <button onclick="togglePWAInstructions()" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-mobile-screen-button"></i> Instalar
                 </button>
             </div>
         </div>
     </header>
+
+    <!-- MODAL DE CONTA (USUÁRIO E SENHA) -->
+    <div id="accountModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl relative border border-purple-500/20">
+            <button onclick="toggleAccountModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div id="accountLoggedOutView">
+                <h3 class="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield"></i> Sua Conta
+                </h3>
+                <div class="flex gap-2 mb-4">
+                    <button onclick="switchAccountTab('login')" id="accTabLogin" class="flex-1 text-xs font-bold py-2 rounded-lg bg-purple-600 text-white transition-colors">Entrar</button>
+                    <button onclick="switchAccountTab('signup')" id="accTabSignup" class="flex-1 text-xs font-bold py-2 rounded-lg bg-gray-800 text-gray-300 transition-colors">Criar Conta</button>
+                </div>
+
+                <div id="loginForm" class="space-y-3">
+                    <p class="text-[11px] text-gray-400 leading-relaxed mb-1">Já tem conta? Entre para recuperar seus dados neste aparelho.</p>
+                    <input type="text" id="loginUsername" placeholder="Nome de usuário" autocomplete="username" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                    <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                    <button onclick="handleLogin()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl transition-colors">Entrar</button>
+                </div>
+
+                <div id="signupForm" class="hidden space-y-3">
+                    <p class="text-[11px] text-gray-400 leading-relaxed mb-1">Cria uma conta e mantém salvo tudo que você já registrou neste aparelho, mesmo se limpar o navegador ou trocar de celular.</p>
+                    <input type="text" id="signupUsername" placeholder="Escolha um nome de usuário" autocomplete="username" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                    <input type="password" id="signupPassword" placeholder="Crie uma senha (mín. 6 caracteres)" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                    <input type="password" id="signupPasswordConfirm" placeholder="Confirme a senha" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                    <button onclick="handleSignup()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl transition-colors">Criar Conta</button>
+                </div>
+            </div>
+
+            <div id="accountLoggedInView" class="hidden text-center">
+                <i class="fa-solid fa-circle-user text-4xl text-purple-400 mb-3"></i>
+                <p class="text-sm text-gray-300 mb-1">Logado como</p>
+                <p class="text-lg font-bold text-white mb-5" id="loggedInUsernameLabel">-</p>
+                <button onclick="handleLogout()" class="w-full bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 font-semibold py-2.5 rounded-xl transition-colors">Sair da Conta</button>
+            </div>
+        </div>
+    </div>
 
     <!-- INSTRUÇÕES PWA MODAL -->
     <div id="pwaModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -323,6 +369,13 @@
     </nav>
 
     <script>
+        // ======================================================
+        // CONFIGURAÇÃO DO SUPABASE — substitua pelos dados do seu projeto
+        // ======================================================
+        const SUPABASE_URL = 'https://zaowjgaqpnicqpctzpnz.supabase.co/rest/v1/';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inphb3dqZ2FxcG5pY3FwY3R6cG56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMzM4NDEsImV4cCI6MjA5OTcwOTg0MX0.s9WgxZgWRrOW9DfIWxpQ8DObtwleNEkNQj2Sc9MK2FU';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const fastingStages = [
             { min: 0, max: 4, title: "Aumento do açúcar no sangue", body: "O corpo está em um estado metabólico normal, digerindo alimentos e usando calorias recentes para energia.", feelings: ["Saciedade", "Energia normal"], coping: ["Mantenha atividades regulares", "Hidrate-se"], color: "indigo-500", stageKey: "0-4" },
             { min: 4, max: 8, title: "Queda do açúcar no sangue", body: "Os níveis de glicose e insulina diminuem. O corpo começa a utilizar o glicogênio armazenado.", feelings: ["Leve fome", "Pequena queda de energia"], coping: ["Mantenha-se ocupado"], color: "blue-500", stageKey: "4-8" },
@@ -355,16 +408,219 @@
         let selectedGoalHours = 16;
         let history = [];
         let isStagePinned = false;
+        let currentFastId = null;
 
-        window.onload = function() {
+        window.onload = async function() {
             setupPWA();
-            loadFromLocalStorage();
+            await ensureAuth();
+            await migrateOldLocalData();
+            loadPreferencesFromLocalStorage();
+            updateAccountUI();
             renderRecipes();
-            renderHistory();
             initDateTimeInputs();
-            checkActiveFast();
+            await loadHistoryFromSupabase();
+            await checkActiveFast();
             applyStagePinState();
         };
+
+        // ======================================================
+        // CONTA COM USUÁRIO E SENHA (sem e-mail)
+        // Internamente o Supabase Auth exige um "e-mail", então
+        // convertemos o nome de usuário num e-mail fictício e único
+        // (ex: joao123 -> joao123@jejumpro.local). Isso NUNCA envia
+        // e-mail de verdade, é só usado como identificador interno.
+        // A senha em si é sempre validada e armazenada com hash pelo
+        // próprio servidor do Supabase — este código nunca a vê depois de enviada.
+        // ======================================================
+        function usernameToEmail(username) {
+            const clean = username.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+            return `${clean}@jejumpro.local`;
+        }
+
+        function isValidUsername(username) {
+            return /^[a-zA-Z0-9_.-]{3,20}$/.test(username.trim());
+        }
+
+        function toggleAccountModal() {
+            document.getElementById('accountModal').classList.toggle('hidden');
+        }
+
+        function switchAccountTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+            document.getElementById('signupForm').classList.toggle('hidden', isLogin);
+            document.getElementById('accTabLogin').className = `flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${isLogin ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-300'}`;
+            document.getElementById('accTabSignup').className = `flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${!isLogin ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-300'}`;
+        }
+
+        // Cria conta = converte a sessão anônima atual numa conta permanente,
+        // preservando o user_id e, portanto, TODO o histórico já salvo.
+        async function handleSignup() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupPasswordConfirm').value;
+
+            if (!isValidUsername(username)) { showToast("Usuário inválido (3-20 letras, números, _ . ou -).", "error"); return; }
+            if (password.length < 6) { showToast("A senha precisa ter pelo menos 6 caracteres.", "error"); return; }
+            if (password !== confirmPassword) { showToast("As senhas não coincidem.", "error"); return; }
+
+            const email = usernameToEmail(username);
+            const { error } = await supabaseClient.auth.updateUser({ email, password });
+
+            if (error) {
+                if (error.message && error.message.toLowerCase().includes('registered')) {
+                    showToast("Esse nome de usuário já está em uso.", "error");
+                } else {
+                    showToast("Erro ao criar conta: " + error.message, "error");
+                }
+                console.error(error);
+                return;
+            }
+
+            localStorage.setItem('jejum_username', username.trim().toLowerCase());
+            showToast("Conta criada! Seus dados estão salvos com segurança.", "success");
+            toggleAccountModal();
+            updateAccountUI();
+        }
+
+        // Entrar = troca a sessão atual pela sessão da conta existente
+        // e recarrega os dados que pertencem a essa conta.
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) { showToast("Preencha usuário e senha.", "error"); return; }
+
+            const email = usernameToEmail(username);
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+                showToast("Usuário ou senha incorretos.", "error");
+                console.error(error);
+                return;
+            }
+
+            localStorage.setItem('jejum_username', username.trim().toLowerCase());
+            showToast("Login realizado com sucesso!", "success");
+            toggleAccountModal();
+
+            cleanupFastingState();
+            await loadHistoryFromSupabase();
+            await checkActiveFast();
+            updateAccountUI();
+        }
+
+        async function handleLogout() {
+            const confirmLogout = await showCustomConfirm("Sair da Conta", "Deseja sair? Você pode entrar novamente depois com seu usuário e senha.");
+            if (!confirmLogout) return;
+
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem('jejum_username');
+            await ensureAuth();
+
+            cleanupFastingState();
+            history = [];
+            renderHistory();
+            await checkActiveFast();
+            updateAccountUI();
+            toggleAccountModal();
+            showToast("Você saiu da conta.", "success");
+        }
+
+        function updateAccountUI() {
+            const username = localStorage.getItem('jejum_username');
+            const loggedOutView = document.getElementById('accountLoggedOutView');
+            const loggedInView = document.getElementById('accountLoggedInView');
+            if (username) {
+                loggedOutView.classList.add('hidden');
+                loggedInView.classList.remove('hidden');
+                document.getElementById('loggedInUsernameLabel').textContent = '@' + username;
+                document.getElementById('accountBtnLabel').textContent = '@' + username;
+            } else {
+                loggedOutView.classList.remove('hidden');
+                loggedInView.classList.add('hidden');
+                document.getElementById('accountBtnLabel').textContent = 'Conta';
+            }
+        }
+
+        // ======================================================
+        // MIGRAÇÃO ÚNICA: envia para o Supabase os dados que ainda
+        // estejam salvos no localStorage de uma versão anterior do app.
+        // Roda só uma vez por navegador (controlado pela flag 'jejum_migrated').
+        // ======================================================
+        async function migrateOldLocalData() {
+            if (localStorage.getItem('jejum_migrated')) return;
+
+            let migratedCount = 0;
+
+            // 1. Migra o histórico de jejuns já concluídos
+            const oldHistoryRaw = localStorage.getItem('jejum_history');
+            if (oldHistoryRaw) {
+                try {
+                    const oldHistory = JSON.parse(oldHistoryRaw);
+                    if (Array.isArray(oldHistory) && oldHistory.length > 0) {
+                        const rows = oldHistory.map(item => ({
+                            start_time: new Date(item.start).toISOString(),
+                            end_time: new Date(item.end).toISOString(),
+                            goal_hours: item.goal,
+                            elapsed_hours: item.elapsed,
+                            is_scheduled: false
+                        }));
+                        const { error } = await supabaseClient.from('jejuns').insert(rows);
+                        if (error) {
+                            console.error('Erro ao migrar histórico antigo:', error);
+                            showToast("Erro ao migrar histórico antigo. Tentarei novamente ao recarregar.", "error");
+                            return; // não marca como migrado, tenta de novo no próximo load
+                        }
+                        migratedCount += rows.length;
+                    }
+                } catch (e) {
+                    console.error('Erro ao processar histórico antigo:', e);
+                }
+            }
+
+            // 2. Migra um jejum que estava em andamento (ou agendado) na versão antiga
+            const savedStart = localStorage.getItem('jejum_startTime');
+            if (savedStart) {
+                const savedScheduled = localStorage.getItem('jejum_isScheduled') === 'true';
+                const savedGoal = localStorage.getItem('jejum_goal');
+                const goalHours = savedGoal ? parseInt(savedGoal) : 16;
+                const { error } = await supabaseClient.from('jejuns').insert({
+                    start_time: new Date(parseInt(savedStart)).toISOString(),
+                    goal_hours: goalHours,
+                    is_scheduled: savedScheduled
+                });
+                if (error) {
+                    console.error('Erro ao migrar jejum em andamento:', error);
+                    showToast("Erro ao migrar jejum em andamento. Tentarei novamente ao recarregar.", "error");
+                    return;
+                }
+                migratedCount += 1;
+            }
+
+            // Limpa as chaves antigas e marca a migração como concluída
+            localStorage.removeItem('jejum_history');
+            localStorage.removeItem('jejum_startTime');
+            localStorage.removeItem('jejum_isScheduled');
+            localStorage.setItem('jejum_migrated', 'true');
+
+            if (migratedCount > 0) {
+                showToast(`${migratedCount} jejum(ns) antigo(s) migrado(s) para o banco!`, "success");
+            }
+        }
+
+        // ======================================================
+        // AUTENTICAÇÃO ANÔNIMA — cada aparelho/navegador vira um "usuário"
+        // com seus próprios dados privados, sem precisar de senha
+        // ======================================================
+        async function ensureAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                const { error } = await supabaseClient.auth.signInAnonymously();
+                if (error) {
+                    console.error('Erro ao autenticar:', error);
+                    showToast("Erro ao conectar ao banco de dados.", "error");
+                }
+            }
+        }
 
         function setupPWA() {
             const manifestObj = {
@@ -417,9 +673,8 @@
             document.getElementById('manualInputs').classList.toggle('hidden', !isChecked);
         }
 
-        function loadFromLocalStorage() {
-            const savedHistory = localStorage.getItem('jejum_history');
-            if (savedHistory) history = JSON.parse(savedHistory);
+        // Preferências de UI (meta e fixação de estágio) continuam locais — não são dados sensíveis
+        function loadPreferencesFromLocalStorage() {
             const savedGoal = localStorage.getItem('jejum_goal');
             if (savedGoal) {
                 selectedGoalHours = parseInt(savedGoal);
@@ -429,15 +684,31 @@
             if (savedPinState) isStagePinned = JSON.parse(savedPinState);
         }
 
-        function checkActiveFast() {
-            const savedStart = localStorage.getItem('jejum_startTime');
-            const savedScheduled = localStorage.getItem('jejum_isScheduled');
+        // Busca no Supabase se existe um jejum ativo (sem end_time) para este usuário
+        async function checkActiveFast() {
+            const { data, error } = await supabaseClient
+                .from('jejuns')
+                .select('*')
+                .is('end_time', null)
+                .order('start_time', { ascending: false })
+                .limit(1)
+                .maybeSingle();
 
-            if (savedStart) {
-                startTime = new Date(parseInt(savedStart));
+            if (error) {
+                console.error('Erro ao verificar jejum ativo:', error);
+                toggleControls(false);
+                resetDisplays();
+                return;
+            }
+
+            if (data) {
+                currentFastId = data.id;
+                startTime = new Date(data.start_time);
+                selectedGoalHours = data.goal_hours;
+                document.getElementById('fastGoal').value = selectedGoalHours;
                 const now = new Date();
 
-                if (savedScheduled === 'true' && startTime > now) {
+                if (data.is_scheduled && startTime > now) {
                     isScheduled = true;
                     isFasting = false;
                     toggleControls(true);
@@ -447,7 +718,9 @@
                 } else {
                     isFasting = true;
                     isScheduled = false;
-                    localStorage.removeItem('jejum_isScheduled');
+                    if (data.is_scheduled) {
+                        await supabaseClient.from('jejuns').update({ is_scheduled: false }).eq('id', currentFastId);
+                    }
                     toggleControls(true);
                     updateScheduledTimes();
                     runFastTimer();
@@ -462,7 +735,12 @@
         function updateGoal() {
             selectedGoalHours = parseInt(document.getElementById('fastGoal').value);
             localStorage.setItem('jejum_goal', selectedGoalHours);
-            if (isFasting || isScheduled) updateScheduledTimes();
+            if (isFasting || isScheduled) {
+                updateScheduledTimes();
+                if (currentFastId) {
+                    supabaseClient.from('jejuns').update({ goal_hours: selectedGoalHours }).eq('id', currentFastId);
+                }
+            }
         }
 
         function updateScheduledTimes() {
@@ -473,10 +751,12 @@
             document.getElementById('endTimeDisplay').textContent = endTime.toLocaleString('pt-BR', options);
         }
 
-        function triggerScheduledStart() {
+        async function triggerScheduledStart() {
             isScheduled = false;
             isFasting = true;
-            localStorage.removeItem('jejum_isScheduled');
+            if (currentFastId) {
+                await supabaseClient.from('jejuns').update({ is_scheduled: false }).eq('id', currentFastId);
+            }
             document.getElementById('scheduledAlertWidget').classList.add('hidden');
             toggleControls(true); 
             runFastTimer();
@@ -484,7 +764,7 @@
             showToast("Seu jejum agendado começou!", "success");
         }
 
-        function startFasting() {
+        async function startFasting() {
             const isManual = document.getElementById('toggleManual').checked;
             const now = new Date();
             
@@ -497,8 +777,13 @@
                 if (startTime > now) {
                     isScheduled = true;
                     isFasting = false;
-                    localStorage.setItem('jejum_startTime', startTime.getTime());
-                    localStorage.setItem('jejum_isScheduled', 'true');
+                    const { data, error } = await supabaseClient.from('jejuns').insert({
+                        start_time: startTime.toISOString(),
+                        goal_hours: selectedGoalHours,
+                        is_scheduled: true
+                    }).select().single();
+                    if (error) { showToast("Erro ao agendar jejum.", "error"); console.error(error); return; }
+                    currentFastId = data.id;
                     toggleControls(true);
                     updateScheduledTimes();
                     displayScheduledState();
@@ -512,8 +797,13 @@
 
             isFasting = true;
             isScheduled = false;
-            localStorage.setItem('jejum_startTime', startTime.getTime());
-            localStorage.removeItem('jejum_isScheduled');
+            const { data, error } = await supabaseClient.from('jejuns').insert({
+                start_time: startTime.toISOString(),
+                goal_hours: selectedGoalHours,
+                is_scheduled: false
+            }).select().single();
+            if (error) { showToast("Erro ao iniciar jejum.", "error"); console.error(error); return; }
+            currentFastId = data.id;
             toggleControls(true);
             updateScheduledTimes();
             runFastTimer();
@@ -682,8 +972,16 @@
 
             const now = new Date();
             const elapsedHours = (now - startTime) / (1000 * 60 * 60);
-            history.unshift({ id: Date.now(), start: startTime.getTime(), end: now.getTime(), goal: selectedGoalHours, elapsed: elapsedHours });
-            localStorage.setItem('jejum_history', JSON.stringify(history));
+
+            if (currentFastId) {
+                const { error } = await supabaseClient.from('jejuns').update({
+                    end_time: now.toISOString(),
+                    elapsed_hours: elapsedHours
+                }).eq('id', currentFastId);
+                if (error) { showToast("Erro ao salvar jejum.", "error"); console.error(error); return; }
+            }
+
+            await loadHistoryFromSupabase();
             cleanupFastingState();
             showToast("Jejum concluído e registrado!", "success");
         }
@@ -692,6 +990,11 @@
             const msg = isScheduled ? "Cancelar início agendado?" : "Descartar a sessão de jejum atual? O progresso não será salvo.";
             const confirmCancel = await showCustomConfirm(isScheduled ? "Cancelar Agendamento" : "Descartar Sessão", msg);
             if (!confirmCancel) return;
+
+            if (currentFastId) {
+                await supabaseClient.from('jejuns').delete().eq('id', currentFastId);
+                currentFastId = null;
+            }
             cleanupFastingState();
             showToast("Sessão cancelada/descartada.", "error");
         }
@@ -699,7 +1002,7 @@
         function cleanupFastingState() {
             isFasting = false; isScheduled = false;
             clearInterval(fastInterval); clearTimeout(scheduleTimeout);
-            localStorage.removeItem('jejum_startTime'); localStorage.removeItem('jejum_isScheduled');
+            currentFastId = null;
             document.getElementById('scheduledAlertWidget').classList.add('hidden');
             toggleControls(false); resetDisplays(); renderHistory();
         }
@@ -808,10 +1111,38 @@
             }).join('');
         }
 
+        // Busca no Supabase o histórico de jejuns já concluídos (com end_time preenchido)
+        async function loadHistoryFromSupabase() {
+            const { data, error } = await supabaseClient
+                .from('jejuns')
+                .select('*')
+                .not('end_time', 'is', null)
+                .order('start_time', { ascending: false });
+
+            if (error) {
+                console.error('Erro ao carregar histórico:', error);
+                return;
+            }
+            history = data.map(item => ({
+                id: item.id,
+                start: new Date(item.start_time).getTime(),
+                end: new Date(item.end_time).getTime(),
+                goal: item.goal_hours,
+                elapsed: item.elapsed_hours
+            }));
+            renderHistory();
+        }
+
         async function clearHistory() {
             if (history.length === 0) return;
             const confirmDelete = await showCustomConfirm("Limpar Histórico", "Tem certeza que deseja apagar permanentemente todas as jornadas?");
-            if (confirmDelete) { history = []; localStorage.removeItem('jejum_history'); renderHistory(); showToast("Histórico limpo.", "error"); }
+            if (confirmDelete) {
+                const { error } = await supabaseClient.from('jejuns').delete().not('end_time', 'is', null);
+                if (error) { showToast("Erro ao limpar histórico.", "error"); console.error(error); return; }
+                history = [];
+                renderHistory();
+                showToast("Histórico limpo.", "error");
+            }
         }
 
         function togglePWAInstructions() { document.getElementById('pwaModal').classList.toggle('hidden'); }
