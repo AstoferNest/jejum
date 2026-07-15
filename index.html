@@ -118,7 +118,11 @@
 
                 <div id="signupForm" class="hidden space-y-3">
                     <p class="text-[11px] text-gray-400 leading-relaxed mb-1">Cria uma conta e mantém salvo tudo que você já registrou neste aparelho, mesmo se limpar o navegador ou trocar de celular.</p>
-                    <input type="text" id="signupUsername" placeholder="Escolha um nome de usuário" autocomplete="username" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                    <div>
+                        <input type="text" id="signupUsername" placeholder="Escolha um nome de usuário" autocomplete="username" oninput="validateSignupUsernameLive()" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
+                        <p id="signupUsernameHint" class="text-[10px] text-gray-500 mt-1.5">Apenas letras sem acento, números, ponto, traço ou underline (3-20 caracteres).</p>
+                        <div id="signupUsernameSuggestions" class="hidden flex flex-wrap gap-1.5 mt-1.5"></div>
+                    </div>
                     <input type="password" id="signupPassword" placeholder="Crie uma senha (mín. 6 caracteres)" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
                     <input type="password" id="signupPasswordConfirm" placeholder="Confirme a senha" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 text-sm rounded-xl p-2.5 focus:outline-none focus:border-purple-500 text-white">
                     <button onclick="handleSignup()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl transition-colors">Criar Conta</button>
@@ -437,8 +441,75 @@
             return `${clean}@jejumpro.local`;
         }
 
+        // Regra estrita: só passa se já vier sem acentos, espaços ou símbolos.
+        // Nada é "corrigido" silenciosamente aqui — se não bater com o padrão, é rejeitado.
         function isValidUsername(username) {
             return /^[a-zA-Z0-9_.-]{3,20}$/.test(username.trim());
+        }
+
+        function stripAccents(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // Gera uma versão "limpa" do que a pessoa digitou, só para sugerir — nunca é usada automaticamente.
+        function suggestCleanUsername(raw) {
+            let cleaned = stripAccents(raw.trim().toLowerCase());
+            cleaned = cleaned.replace(/\s+/g, '_');
+            cleaned = cleaned.replace(/[^a-z0-9_.-]/g, '');
+            cleaned = cleaned.replace(/^[_.-]+|[_.-]+$/g, '');
+            if (cleaned.length < 3) cleaned = (cleaned || 'usuario') + Math.floor(100 + Math.random() * 900);
+            return cleaned.slice(0, 20);
+        }
+
+        function generateUsernameSuggestions(raw) {
+            const base = suggestCleanUsername(raw) || 'usuario';
+            const year = new Date().getFullYear();
+            const suggestions = new Set([
+                base,
+                base + Math.floor(10 + Math.random() * 90),
+                base + '_' + Math.floor(10 + Math.random() * 90),
+                base + year
+            ]);
+            return Array.from(suggestions).slice(0, 4);
+        }
+
+        function renderUsernameSuggestions(raw) {
+            const container = document.getElementById('signupUsernameSuggestions');
+            const suggestions = generateUsernameSuggestions(raw);
+            container.innerHTML = suggestions.map(s =>
+                `<button type="button" onclick="applyUsernameSuggestion('${s}')" class="text-[10px] bg-gray-800 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full transition-all">${s}</button>`
+            ).join('');
+            container.classList.remove('hidden');
+        }
+
+        function applyUsernameSuggestion(name) {
+            document.getElementById('signupUsername').value = name;
+            document.getElementById('signupUsernameSuggestions').classList.add('hidden');
+            validateSignupUsernameLive();
+        }
+
+        // Roda a cada letra digitada, avisando na hora se tem acento/símbolo inválido
+        function validateSignupUsernameLive() {
+            const input = document.getElementById('signupUsername');
+            const hint = document.getElementById('signupUsernameHint');
+            const raw = input.value;
+
+            if (!raw) {
+                hint.textContent = 'Apenas letras sem acento, números, ponto, traço ou underline (3-20 caracteres).';
+                hint.className = 'text-[10px] text-gray-500 mt-1.5';
+                document.getElementById('signupUsernameSuggestions').classList.add('hidden');
+                return;
+            }
+
+            if (isValidUsername(raw)) {
+                hint.textContent = '✓ Nome de usuário válido.';
+                hint.className = 'text-[10px] text-emerald-400 mt-1.5';
+                document.getElementById('signupUsernameSuggestions').classList.add('hidden');
+            } else {
+                hint.textContent = 'Não pode ter acentos, espaços ou símbolos. Veja sugestões abaixo:';
+                hint.className = 'text-[10px] text-amber-400 mt-1.5';
+                renderUsernameSuggestions(raw);
+            }
         }
 
         function toggleAccountModal() {
@@ -460,7 +531,11 @@
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('signupPasswordConfirm').value;
 
-            if (!isValidUsername(username)) { showToast("Usuário inválido (3-20 letras, números, _ . ou -).", "error"); return; }
+            if (!isValidUsername(username)) {
+                showToast("Nome de usuário não pode ter acentos, espaços ou símbolos.", "error");
+                renderUsernameSuggestions(username);
+                return;
+            }
             if (password.length < 6) { showToast("A senha precisa ter pelo menos 6 caracteres.", "error"); return; }
             if (password !== confirmPassword) { showToast("As senhas não coincidem.", "error"); return; }
 
@@ -469,7 +544,8 @@
 
             if (error) {
                 if (error.message && error.message.toLowerCase().includes('registered')) {
-                    showToast("Esse nome de usuário já está em uso.", "error");
+                    showToast("Esse nome de usuário já está em uso. Veja sugestões abaixo.", "error");
+                    renderUsernameSuggestions(username);
                 } else {
                     showToast("Erro ao criar conta: " + error.message, "error");
                 }
