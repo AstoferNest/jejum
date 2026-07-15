@@ -376,8 +376,8 @@
         // ======================================================
         // CONFIGURAÇÃO DO SUPABASE — substitua pelos dados do seu projeto
         // ======================================================
-        const SUPABASE_URL = 'https://zaowjgaqpnicqpctzpnz.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inphb3dqZ2FxcG5pY3FwY3R6cG56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMzM4NDEsImV4cCI6MjA5OTcwOTg0MX0.s9WgxZgWRrOW9DfIWxpQ8DObtwleNEkNQj2Sc9MK2FU';
+        const SUPABASE_URL = 'COLOQUE_AQUI_A_URL_DO_SEU_PROJETO';
+        const SUPABASE_ANON_KEY = 'COLOQUE_AQUI_SUA_ANON_KEY';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const fastingStages = [
@@ -540,16 +540,26 @@
             if (password !== confirmPassword) { showToast("As senhas não coincidem.", "error"); return; }
 
             const email = usernameToEmail(username);
-            const { error } = await supabaseClient.auth.updateUser({ email, password });
 
-            if (error) {
-                if (error.message && error.message.toLowerCase().includes('registered')) {
+            // Etapa 1: vincula o e-mail interno primeiro
+            const { error: emailError } = await supabaseClient.auth.updateUser({ email });
+            if (emailError) {
+                if (emailError.message && emailError.message.toLowerCase().includes('registered')) {
                     showToast("Esse nome de usuário já está em uso. Veja sugestões abaixo.", "error");
                     renderUsernameSuggestions(username);
                 } else {
-                    showToast("Erro ao criar conta: " + error.message, "error");
+                    showToast("Erro ao criar conta: " + emailError.message, "error");
                 }
-                console.error(error);
+                console.error(emailError);
+                return;
+            }
+
+            // Etapa 2: define a senha (feito separado, pois algumas versões do Supabase
+            // exigem que o e-mail já esteja vinculado antes de aceitar a senha)
+            const { error: passwordError } = await supabaseClient.auth.updateUser({ password });
+            if (passwordError) {
+                showToast("Erro ao definir a senha: " + passwordError.message, "error");
+                console.error(passwordError);
                 return;
             }
 
