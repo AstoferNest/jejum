@@ -579,8 +579,8 @@
             const email = usernameToEmail(username);
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) {
-                showToast("Usuário ou senha incorretos.", "error");
                 console.error(error);
+                showToast(error.message, "error");
                 return;
             }
 
